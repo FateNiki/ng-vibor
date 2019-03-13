@@ -134,6 +134,41 @@
           }
         }
       }
+    },
+    "vibor": {
+      "root": "projects/vibor",
+      "sourceRoot": "projects/vibor/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/vibor/tsconfig.lib.json",
+            "project": "projects/vibor/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/vibor/src/test.ts",
+            "tsConfig": "projects/vibor/tsconfig.spec.json",
+            "karmaConfig": "projects/vibor/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/vibor/tsconfig.lib.json",
+              "projects/vibor/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "vibor-demo"
