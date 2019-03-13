@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'lib-vibor',
+  selector: 'lib-ng-vibor',
   template: `
     <p>
-      vibor works!
+      ng-vibor works!
     </p>
   `,
   styles: []
 })
-export class ViborComponent implements OnInit {
+export class NgViborComponent implements OnInit {
 
   constructor() { }
 

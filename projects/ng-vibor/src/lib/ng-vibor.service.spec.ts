@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ViborService } from './vibor.service';
+import { NgViborService } from './ng-vibor.service';
 
-describe('ViborService', () => {
+describe('NgViborService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: ViborService = TestBed.get(ViborService);
+    const service: NgViborService = TestBed.get(NgViborService);
     expect(service).toBeTruthy();
   });
 });
