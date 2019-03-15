@@ -40,6 +40,10 @@ export abstract class Connector<T = any> {
 
     protected abstract GetList(): Observable<IConnectorData<T>>;
 
+    protected Comparator(a: T, b: T): boolean {
+        return a === b;
+    }
+
 
     // From Vibor
     public set Page(value: number) {

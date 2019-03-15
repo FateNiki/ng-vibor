@@ -2,8 +2,11 @@ import { Observable, of } from 'rxjs';
 import { Connector, IConnectorData } from './connector';
 
 export class ArrayConnector<T> extends Connector<T> {
-    constructor(private array: Array<T> = [], limit: number) {
+    constructor(private array: Array<T> = [], limit: number, Comparator?: (a: T, b: T) => boolean) {
         super(limit);
+        if (Comparator) {
+            this.Comparator = Comparator;
+        }
     }
 
     protected GetList(): Observable<IConnectorData<T>> {
