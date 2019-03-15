@@ -5,6 +5,7 @@ import { Component, OnInit } from '@angular/core';
   template: `
     <p>
       ng-vibor works!
+      <vibor-options-viewer></vibor-options-viewer>
     </p>
   `,
   styles: []

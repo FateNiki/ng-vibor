@@ -1,1 +1,3 @@
-lib-ng-vibor
+<cdk-virtual-scroll-viewport itemSize="50" class="example-viewport">
+    <div *cdkVirtualFor="let item of ds" class="example-item">{{item || 'Loading...'}}</div>
+</cdk-virtual-scroll-viewport>
