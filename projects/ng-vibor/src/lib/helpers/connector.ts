@@ -7,11 +7,11 @@ export interface IConnectorData<T> {
     end: boolean;
 }
 
-export abstract class Connector<T = any> {
+export abstract class Connector<SModel = any, FModel = any> {
     private query = new BehaviorSubject<string>('');
     private page = new BehaviorSubject<number>(1);
 
-    private value = new BehaviorSubject<IConnectorData<T>>(undefined);
+    private value = new BehaviorSubject<IConnectorData<SModel>>(undefined);
     public value$ = this.value.asObservable();
 
     constructor(public limit = 20) {
@@ -38,12 +38,14 @@ export abstract class Connector<T = any> {
         });
     }
 
-    protected abstract GetList(): Observable<IConnectorData<T>>;
+    protected abstract GetList(): Observable<IConnectorData<SModel>>;
 
-    protected Comparator(a: T, b: T): boolean {
+    protected Comparator(a: SModel, b: SModel): boolean {
         return a === b;
     }
 
+    protected abstract Find(a: FModel): SModel;
+    protected abstract Find(a: Array<FModel>): Array<SModel>;
 
     // From Vibor
     public set Page(value: number) {

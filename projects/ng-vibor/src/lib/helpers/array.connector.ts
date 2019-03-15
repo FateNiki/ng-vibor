@@ -26,4 +26,12 @@ export class ArrayConnector<T> extends Connector<T> {
         };
         return of(answer);
     }
+
+    protected Find(a: any): any {
+        if (a instanceof Array) {
+            return a.map(v1 => this.array.find(v2 => v2 === v1)).filter(v2 => !!v2);
+        } else {
+            return this.array.find(v2 => v2 === a);
+        }
+    }
 }
