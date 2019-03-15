@@ -1,28 +1,39 @@
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { switchMap, filter } from 'rxjs/operators';
+import { IsNumber } from './functions';
 
-interface IConnectorData<T> {
+export interface IConnectorData<T> {
     data: Array<T>;
     end: boolean;
 }
 
 export abstract class Connector<T = any> {
     private query = new BehaviorSubject<string>('');
-    private page = new BehaviorSubject<number>(0);
+    private page = new BehaviorSubject<number>(1);
 
     private value = new BehaviorSubject<IConnectorData<T>>(undefined);
     public value$ = this.value.asObservable();
 
     constructor(public limit = 20) {
         this.query.subscribe(() => {
-            this.page.next(0);
+            this.page.next(1);
         });
 
         this.page.pipe(
-            switchMap(() => {
+            filter(() => this.value.observers.length > 0),
+            switchMap(page => {
+                if (!IsNumber(page) || page <= 0) throwError('Invalid page');
+
                 return this.Get();
             })
         ).subscribe(answer => {
+            this.value.next(answer);
+        });
+    }
+
+    // При открытии
+    public ForceUpdate() {
+        this.Get().subscribe(answer => {
             this.value.next(answer);
         });
     }
@@ -46,20 +57,6 @@ export abstract class Connector<T = any> {
     }
     protected get Limit(): number {
         const page = this.page.value;
-        return (page - 1) * this.limit;
-    }
-}
-
-export class ArrayConnector<T> extends Connector<T> {
-    constructor(private array: Array<T>, limit: number) {
-        super(limit);
-    }
-
-    Get(): Observable<IConnectorData<T>> {
-        const answer: IConnectorData<T> = {
-            data: this.array.slice(this.Offset, this.Limit),
-            end: this.array.length <= this.Limit
-        };
-        return of(answer);
+        return page * this.limit;
     }
 }
