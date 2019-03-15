@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { NgViborComponent } from './ng-vibor.component';
+import { NgViborComponent } from './components/ng-vibor.component';
 
 @NgModule({
   declarations: [NgViborComponent],
