@@ -13,7 +13,7 @@ describe('Connector', () => {
       expect(connector).toBeTruthy();
     });
 
-    it('Next valid', (done) => {
+    it('First page is Load', (done) => {
         connector.ForceUpdate();
         connector.value$.subscribe(newValue => {
             expect(newValue.data.length).toBe(limit);
