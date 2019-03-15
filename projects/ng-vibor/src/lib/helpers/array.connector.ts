@@ -6,7 +6,7 @@ export class ArrayConnector<T> extends Connector<T> {
         super(limit);
     }
 
-    protected Get(): Observable<IConnectorData<T>> {
+    protected GetList(): Observable<IConnectorData<T>> {
         if (!this.array) {
             throw new Error('array is not Array');
         }

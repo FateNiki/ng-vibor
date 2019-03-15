@@ -24,7 +24,7 @@ export abstract class Connector<T = any> {
             switchMap(page => {
                 if (!IsNumber(page) || page <= 0) throwError('Invalid page');
 
-                return this.Get();
+                return this.GetList();
             })
         ).subscribe(answer => {
             this.value.next(answer);
@@ -33,12 +33,12 @@ export abstract class Connector<T = any> {
 
     // При открытии
     public ForceUpdate() {
-        this.Get().subscribe(answer => {
+        this.GetList().subscribe(answer => {
             this.value.next(answer);
         });
     }
 
-    protected abstract Get(): Observable<IConnectorData<T>>;
+    protected abstract GetList(): Observable<IConnectorData<T>>;
 
 
     // From Vibor
