@@ -140,6 +140,11 @@
       "sourceRoot": "projects/ng-vibor/src",
       "projectType": "library",
       "prefix": "vibor",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
