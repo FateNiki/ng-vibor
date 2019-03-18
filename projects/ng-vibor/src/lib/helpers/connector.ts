@@ -82,7 +82,7 @@ export class DataSourceConnector extends DataSource<IStorageValue | undefined> {
     private fetchedPages = new Set<number>();
 
     // Data and Subscriber
-    public selectedElement = new BehaviorSubject<IStorageValue | undefined>(undefined);
+    public selectedElement = new BehaviorSubject<{element: IStorageValue, index: number} | undefined>(undefined);
     private dataStream = new BehaviorSubject<(IStorageValue | undefined)[]>(this.cachedData);
     private subscription = new Subscription();
 
@@ -98,7 +98,7 @@ export class DataSourceConnector extends DataSource<IStorageValue | undefined> {
         const firstSub = this.dataStream.pipe(
             skip(1)
         ).subscribe(values => {
-            this.selectedElement.next(values[0]);
+            this.selectedElement.next({element: values[0], index: 0});
             firstSub.unsubscribe();
         });
 
@@ -130,12 +130,12 @@ export class DataSourceConnector extends DataSource<IStorageValue | undefined> {
 
     // Selected
     public NextElement(delta: 1 | -1): void {
-        const element = this.selectedElement.value && this.selectedElement.value;
+        const element = this.selectedElement.value && this.selectedElement.value.element;
         const index = this.cachedData.indexOf(element) + delta;
         if (index < 0 || index >= this.cachedData.length) {
             return;
         } else {
-            this.selectedElement.next(this.cachedData[index]);
+            this.selectedElement.next({element: this.cachedData[index], index});
         }
 
     }
