@@ -3,7 +3,6 @@ import { Component, Input, OnInit, OnDestroy, ViewChild, OnChanges } from '@angu
 import { NgViborService } from '../../services/ng-vibor.service';
 import { DataSourceConnector } from '../../helpers/connector';
 import { Subscription } from 'rxjs';
-import { scrollActiveOption } from '../../helpers/functions';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { filter } from 'rxjs/operators';
 
@@ -16,8 +15,8 @@ declare type T = string;
 })
 export class OptionsViewerComponent implements OnInit, OnChanges, OnDestroy {
     @Input() public dataSource: DataSourceConnector;
-    @Input() public itemSize: number = 50;
-    @Input() public optionsViewerSize: number = 300;
+    @Input() public itemSize = 50;
+    @Input() public optionsViewerSize = 300;
 
     @ViewChild(CdkVirtualScrollViewport) scrollViewport: CdkVirtualScrollViewport;
 
