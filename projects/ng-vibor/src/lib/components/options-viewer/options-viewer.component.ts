@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { DataSource, CollectionViewer } from '@angular/cdk/collections';
 
 import { BehaviorSubject, Subscription, Observable } from 'rxjs';
+import { NgViborService } from '../../services/ng-vibor.service';
 
 @Component({
     selector: 'vibor-options-viewer',
@@ -12,7 +13,9 @@ export class OptionsViewerComponent {
     public ds = new MyDataSource();
     public selectedItem: any;
 
-    constructor() { }
+    constructor(private vs: NgViborService) {
+        this.vs.inputKeyEvent.subscribe(console.log);
+    }
 }
 
 
