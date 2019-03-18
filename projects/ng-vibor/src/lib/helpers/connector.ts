@@ -2,97 +2,86 @@ import { BehaviorSubject, Observable, throwError, Subscription, Subject } from '
 import { switchMap, filter, skip } from 'rxjs/operators';
 import { IsNumber } from './functions';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
+import { NgViborService } from '../services/ng-vibor.service';
 
 export interface IConnectorData<T> {
     data: Array<T>;
-    end: boolean;
+    length: number;
 }
 
 export abstract class Connector<SModel = any, FModel = any> {
-    private query = new BehaviorSubject<string>('');
-    private page = new BehaviorSubject<number>(1);
+    constructor(public limit = 20) { }
 
-    private value = new BehaviorSubject<IConnectorData<SModel>>(undefined);
-    public value$ = this.value.asObservable();
+    /** async method for load data by pages
+     * In this method can be write cache module
+     */
+    public abstract GetList(query: string, page: number): Observable<IConnectorData<SModel>>;
 
-    constructor(public limit = 20) {
-        this.query.subscribe(() => {
-            this.page.next(1);
-        });
-
-        this.page.pipe(
-            filter(() => this.value.observers.length > 0),
-            switchMap(page => {
-                if (!IsNumber(page) || page <= 0) throwError('Invalid page');
-
-                return this.GetList();
-            })
-        ).subscribe(answer => {
-            this.value.next(answer);
-        });
-    }
-
-    // При открытии
-    public ForceUpdate() {
-        this.GetList().subscribe(answer => {
-            this.value.next(answer);
-        });
-    }
-
-    protected abstract GetList(): Observable<IConnectorData<SModel>>;
-
-    protected Comparator(a: SModel, b: SModel): boolean {
+    /**
+     * Метод сравнения объектов в списке
+     * @param a Объект для сравнения 1
+     * @param b Объект для сравнения 2
+     */
+    public Comparator(a: SModel, b: SModel): boolean {
         return a === b;
     }
 
-    protected abstract Find(a: FModel): SModel;
-    protected abstract Find(a: Array<FModel>): Array<SModel>;
-
-    // From Vibor
-    public set Page(value: number) {
-        this.page.next(value);
+    /** Метод преобразования
+     * Приведение объектов для хранения в форме
+     */
+    public Transform(a: FModel): SModel {
+        return a as any;
     }
 
-    public set Query(value: string) {
-        this.query.next(value);
-    }
+    /** Метод обратного преобразования
+     * Поиск при преведении из значений формы в значения Storage
+     */
+    public abstract TransformBack(a: FModel): SModel;
+    public abstract TransformBack(a: Array<FModel>): Array<SModel>;
+
 
     // Protected
-    protected get Offset(): number {
-        const page = this.page.value;
-        return (page - 1) * this.limit;
-    }
-    protected get Limit(): number {
-        const page = this.page.value;
+    protected Offset(page: number): number {
         return page * this.limit;
+    }
+    protected Limit(page: number): number {
+        return (page + 1) * this.limit;
     }
 }
 
 
-
-declare type IStorageValue = string;
-
-export class DataSourceConnector extends DataSource<IStorageValue | undefined> {
+export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | undefined> {
     // Const
-    private readonly length = 100000;
-    private readonly pageSize = 100;
+    private length: number;
+    private pageSize: number;
 
     // Cache
-    private cachedData = Array.from<IStorageValue>({ length: this.length });
+    private cachedData = Array.from<SModel>({ length: this.length });
     private fetchedPages = new Set<number>();
+    private query: string;
 
     // Data and Subscriber
-    public selectedElement = new BehaviorSubject<{element: IStorageValue, index: number} | undefined>(undefined);
-    private dataStream = new BehaviorSubject<(IStorageValue | undefined)[]>(this.cachedData);
+    public selectedElement = new BehaviorSubject<{element: SModel, index: number} | undefined>(undefined);
+    private dataStream = new BehaviorSubject<(SModel | undefined)[]>(this.cachedData);
     private subscription = new Subscription();
 
-    connect(collectionViewer: CollectionViewer): Observable<(IStorageValue | undefined)[]> {
+    constructor(private connector: Connector<SModel, FModel>, private vs: NgViborService) {
+        super();
+        this.pageSize = connector.limit;
+    }
+
+    /** Base method for connection to virtual scrolling */
+    connect(collectionViewer: CollectionViewer): Observable<(SModel | undefined)[]> {
         this.subscription.add(collectionViewer.viewChange.subscribe(range => {
             const startPage = this.getPageForIndex(range.start);
             const endPage = this.getPageForIndex(range.end - 1);
             for (let i = startPage; i <= endPage; i++) {
                 this.fetchPage(i);
             }
+        }));
+
+        this.subscription.add(this.vs.query.subscribe(newQuery => {
+            this.queryChange(newQuery);
         }));
 
         const firstSub = this.dataStream.pipe(
@@ -105,27 +94,41 @@ export class DataSourceConnector extends DataSource<IStorageValue | undefined> {
         return this.dataStream;
     }
 
+    /** Disconnect */
     disconnect(): void {
         this.subscription.unsubscribe();
     }
 
+    /** Get needed page
+     * @return page
+     */
     private getPageForIndex(index: number): number {
         return Math.floor(index / this.pageSize);
     }
 
+    /** Get page */
     private fetchPage(page: number) {
         if (this.fetchedPages.has(page)) {
             return;
         }
         this.fetchedPages.add(page);
 
-        // Use `setTimeout` to simulate fetching data from server.
-        setTimeout(() => {
-            this.cachedData.splice(page * this.pageSize, this.pageSize,
-                ...Array.from({ length: this.pageSize })
-                    .map((_, i) => `Options #${page * this.pageSize + i}`));
+        this.connector.GetList(this.query, page).subscribe(newValues => {
+            // TODO: Нормальный мерж списков (Учитывать что cachedData = undefined)
+            if (!this.cachedData) {
+                this.cachedData = Array.from({length: newValues.length});
+            }
+
+            this.cachedData.splice(page * this.pageSize, this.pageSize, ...newValues.data);
             this.dataStream.next(this.cachedData);
-        }, Math.random() * 1000 + 200);
+        });
+    }
+
+    private queryChange(newQuery: string) {
+        this.query = newQuery;
+        this.cachedData = undefined;
+        this.fetchedPages.clear();
+        this.fetchPage(0);
     }
 
     // Selected
@@ -137,6 +140,5 @@ export class DataSourceConnector extends DataSource<IStorageValue | undefined> {
         } else {
             this.selectedElement.next({element: this.cachedData[index], index});
         }
-
     }
 }

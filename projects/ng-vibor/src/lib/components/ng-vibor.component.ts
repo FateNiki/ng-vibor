@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { DataSourceConnector } from '../helpers/connector';
+import { ArrayConnector } from '../helpers/array.connector';
+import { NgViborService } from '../services/ng-vibor.service';
 
 @Component({
     selector: 'vibor-select',
@@ -9,7 +11,8 @@ import { DataSourceConnector } from '../helpers/connector';
     `
 })
 export class NgViborComponent {
-    public dataSource = new DataSourceConnector();
+    private arrayConnector = new ArrayConnector(Array.from({length: 500}).map(Math.random), 50);
+    public dataSource = new DataSourceConnector(this.arrayConnector, this.vs);
 
-    constructor() { }
+    constructor(private vs: NgViborService) { }
 }

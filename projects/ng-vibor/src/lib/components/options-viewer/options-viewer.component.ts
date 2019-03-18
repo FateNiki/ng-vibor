@@ -14,7 +14,7 @@ declare type T = string;
     styleUrls: ['./options-viewer.component.scss']
 })
 export class OptionsViewerComponent implements OnInit, OnChanges, OnDestroy {
-    @Input() public dataSource: DataSourceConnector;
+    @Input() public dataSource: DataSourceConnector<any, any>;
     @Input() public itemSize = 50;
     @Input() public optionsViewerSize = 300;
 
