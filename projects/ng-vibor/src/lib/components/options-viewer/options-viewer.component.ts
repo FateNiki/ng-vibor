@@ -1,63 +1,55 @@
-import { Component } from '@angular/core';
-import { DataSource, CollectionViewer } from '@angular/cdk/collections';
+import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
-import { BehaviorSubject, Subscription, Observable } from 'rxjs';
 import { NgViborService } from '../../services/ng-vibor.service';
+import { DataSourceConnector } from '../../helpers/connector';
+import { Subscription } from 'rxjs';
+import { scrollActiveOption } from '../../helpers/functions';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
     selector: 'vibor-options-viewer',
     templateUrl: './options-viewer.component.html',
     styleUrls: ['./options-viewer.component.scss']
 })
-export class OptionsViewerComponent {
-    public ds = new MyDataSource();
+export class OptionsViewerComponent implements OnInit, OnDestroy {
+    @Input() public dataSource: DataSourceConnector;
+    @ViewChild(CdkVirtualScrollViewport) scrollViewport: CdkVirtualScrollViewport;
+
     public selectedItem: any;
+    public selectedIndex: any;
+    public firstElementSub: Subscription;
 
     constructor(private vs: NgViborService) {
-        this.vs.inputKeyEvent.subscribe(console.log);
-    }
-}
-
-
-export class MyDataSource extends DataSource<string | undefined> {
-    private length = 100000;
-    private pageSize = 100;
-    private cachedData = Array.from<string>({ length: this.length });
-    private fetchedPages = new Set<number>();
-    private dataStream = new BehaviorSubject<(string | undefined)[]>(this.cachedData);
-    private subscription = new Subscription();
-
-    connect(collectionViewer: CollectionViewer): Observable<(string | undefined)[]> {
-        this.subscription.add(collectionViewer.viewChange.subscribe(range => {
-            const startPage = this.getPageForIndex(range.start);
-            const endPage = this.getPageForIndex(range.end - 1);
-            for (let i = startPage; i <= endPage; i++) {
-                this.fetchPage(i);
+        this.vs.inputKeyEvent.subscribe(event => {
+            switch (event.key) {
+                case 'ArrowUp':
+                    this.dataSource.NextElement(-1);
+                    break;
+                case 'ArrowDown':
+                    this.dataSource.NextElement(1);
+                    break;
             }
-        }));
-        return this.dataStream;
+        });
     }
 
-    disconnect(): void {
-        this.subscription.unsubscribe();
+    ngOnInit() {
+        this.firstElementSub = this.dataSource.selectedElement.subscribe(value => {
+            this.selectedItem = value;
+            this.focusSelectedOption();
+        });
     }
 
-    private getPageForIndex(index: number): number {
-        return Math.floor(index / this.pageSize);
+    ngOnDestroy() {
+        if (this.firstElementSub) this.firstElementSub.unsubscribe();
     }
 
-    private fetchPage(page: number) {
-        if (this.fetchedPages.has(page)) {
-            return;
+    private focusSelectedOption(): void {
+        const targetLi = this.scrollViewport.elementRef.nativeElement.getElementsByClassName('selected')[0] as HTMLElement;
+        if (!targetLi) {
+            this.scrollViewport.scrollToIndex(this.selectedIndex + 1);
         }
-        this.fetchedPages.add(page);
-
-        // Use `setTimeout` to simulate fetching data from server.
-        setTimeout(() => {
-            this.cachedData.splice(page * this.pageSize, this.pageSize,
-                ...Array.from({ length: this.pageSize })
-                    .map((_, i) => `Options #${page * this.pageSize + i}`));
-            this.dataStream.next(this.cachedData);
-        }, Math.random() * 1000 + 200);
     }
 }
+
+
+

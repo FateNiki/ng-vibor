@@ -1,3 +1,3 @@
-<cdk-virtual-scroll-viewport itemSize="50" class="example-viewport">
-    <div *cdkVirtualFor="let item of ds" class="example-item" [class.selected]="item === selectedItem">{{item || 'Loading...'}}</div>
+<cdk-virtual-scroll-viewport itemSize="50" minBufferPx="0" maxBufferPx="0" class="example-viewport" (scrolledIndexChange)="selectedIndex = $event" #scrollContainer>
+    <div *cdkVirtualFor="let item of dataSource" class="example-item" [class.selected]="selectedItem && selectedItem === item">{{item || 'Loading...'}}</div>
 </cdk-virtual-scroll-viewport>
