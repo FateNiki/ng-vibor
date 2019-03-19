@@ -64,7 +64,10 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
     private dataStream = new BehaviorSubject<(SModel | undefined)[]>(this.cachedData);
     private subscription = new Subscription();
 
-    constructor(private connector: Connector<SModel, FModel>, private vs: NgViborService<SModel>) {
+    constructor(
+        private connector: Connector<SModel, FModel>,
+        private vs: NgViborService<SModel>
+    ) {
         super();
         this.pageSize = connector.limit;
     }
@@ -90,6 +93,9 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
                     break;
                 case 'ArrowDown':
                     this.SelectElement(1);
+                    break;
+                case 'Enter':
+                    this.vs.selectElement.next(this.selectedElement.value && this.selectedElement.value.element);
                     break;
             }
         }));

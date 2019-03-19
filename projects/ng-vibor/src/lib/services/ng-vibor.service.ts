@@ -18,5 +18,5 @@ export class NgViborService<SModel> {
     public readonly hideOptions = new Subject<void>();
 
     /** Событие закрытия списка опций */
-    public readonly elementIsSelected = new Subject<SModel>();
+    public readonly selectElement = new Subject<SModel>();
 }
