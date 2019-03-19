@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable, throwError, Subscription, Subject } from 'rxjs';
-import { switchMap, filter, skip } from 'rxjs/operators';
+import { switchMap, filter, skip, debounceTime } from 'rxjs/operators';
 import { IsNumber } from './functions';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { NgViborService } from '../services/ng-vibor.service';
@@ -84,8 +84,19 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
             this.queryChange(newQuery);
         }));
 
+        this.subscription.add(this.vs.inputKeyEvent.subscribe(event => {
+            switch (event.key) {
+                case 'ArrowUp':
+                    this.SelectElement(-1);
+                    break;
+                case 'ArrowDown':
+                    this.SelectElement(1);
+                    break;
+            }
+        }));
+
         const firstSub = this.dataStream.pipe(
-            skip(1)
+            debounceTime(0)
         ).subscribe(values => {
             this.selectedElement.next({element: values[0], index: 0});
             firstSub.unsubscribe();
@@ -132,7 +143,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
     }
 
     // Selected
-    public NextElement(delta: 1 | -1): void {
+    private SelectElement(delta: 1 | -1): void {
         const element = this.selectedElement.value && this.selectedElement.value.element;
         const index = this.cachedData.indexOf(element) + delta;
         if (index < 0 || index >= this.cachedData.length) {

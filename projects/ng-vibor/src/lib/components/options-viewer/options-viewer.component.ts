@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, OnDestroy, ViewChild, OnChanges } from '@angular/core';
 
-import { NgViborService } from '../../services/ng-vibor.service';
 import { DataSourceConnector } from '../../helpers/connector';
 import { Subscription } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
@@ -24,19 +23,6 @@ export class OptionsViewerComponent implements OnInit, OnChanges, OnDestroy {
     public selectedIndex: number;
     public countElementOnViewer: number;
     public firstElementSub: Subscription;
-
-    constructor(private vs: NgViborService) {
-        this.vs.inputKeyEvent.subscribe(event => {
-            switch (event.key) {
-                case 'ArrowUp':
-                    this.dataSource.NextElement(-1);
-                    break;
-                case 'ArrowDown':
-                    this.dataSource.NextElement(1);
-                    break;
-            }
-        });
-    }
 
     ngOnInit() {
         this.firstElementSub = this.dataSource.selectedElement.pipe(
