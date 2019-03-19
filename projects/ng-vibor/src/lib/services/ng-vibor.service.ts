@@ -19,4 +19,10 @@ export class NgViborService<SModel> {
 
     /** Событие закрытия списка опций */
     public readonly selectElement = new Subject<SModel>();
+
+    constructor() {
+        this.selectElement.subscribe(() => {
+            this.hideOptions.next();
+        });
+    }
 }
