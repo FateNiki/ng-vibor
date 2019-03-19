@@ -5,8 +5,9 @@ import { Subject, BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class NgViborService {
-  constructor() { }
+  public readonly inputKeyEvent = new Subject<KeyboardEvent>();
+  public readonly query = new BehaviorSubject<string>(undefined);
 
-  public inputKeyEvent = new Subject<KeyboardEvent>();
-  public query = new BehaviorSubject<string>(undefined);
+  public readonly showOptions = new Subject<void>();
+  public readonly hideOptions = new Subject<void>();
 }

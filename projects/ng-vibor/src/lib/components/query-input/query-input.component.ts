@@ -28,4 +28,12 @@ export class QueryInputComponent {
             this.vs.inputKeyEvent.next(event);
         }
     }
+
+    public Focus() {
+        this.vs.showOptions.next();
+    }
+
+    public Blur() {
+        this.vs.hideOptions.next();
+    }
 }
