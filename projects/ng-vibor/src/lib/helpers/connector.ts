@@ -1,6 +1,5 @@
-import { BehaviorSubject, Observable, throwError, Subscription, Subject } from 'rxjs';
-import { switchMap, filter, skip, debounceTime } from 'rxjs/operators';
-import { IsNumber } from './functions';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { NgViborService } from '../services/ng-vibor.service';
 
@@ -65,7 +64,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
     private dataStream = new BehaviorSubject<(SModel | undefined)[]>(this.cachedData);
     private subscription = new Subscription();
 
-    constructor(private connector: Connector<SModel, FModel>, private vs: NgViborService) {
+    constructor(private connector: Connector<SModel, FModel>, private vs: NgViborService<SModel>) {
         super();
         this.pageSize = connector.limit;
     }

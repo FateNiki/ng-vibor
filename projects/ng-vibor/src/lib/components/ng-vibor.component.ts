@@ -15,14 +15,14 @@ import { tap } from 'rxjs/operators';
       <vibor-options-viewer *ngIf="showOptions" [dataSource]="dataSource"></vibor-options-viewer>
     `
 })
-export class NgViborComponent implements OnDestroy {
-    private arrayConnector = new ArrayConnector(Array.from({length: 500}).map(Math.random), 50);
+export class NgViborComponent<SModel, FModel> implements OnDestroy {
+    private arrayConnector = new ArrayConnector<SModel, FModel>(Array.from({length: 500}).map(Math.random) as any, 50);
     public dataSource = new DataSourceConnector(this.arrayConnector, this.vs);
 
     public showOptions: boolean;
     private showOptionsSub: Subscription;
 
-    constructor(private vs: NgViborService) {
+    constructor(private vs: NgViborService<SModel>) {
         this.showOptionsSub = merge(
             this.vs.hideOptions.pipe(
                 tap(() => this.showOptions = false)

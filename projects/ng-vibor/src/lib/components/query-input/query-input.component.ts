@@ -9,12 +9,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     styleUrls: ['./query-input.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QueryInputComponent {
+export class QueryInputComponent<SModel> {
     static readonly emittedKey = ['ArrowUp', 'ArrowDown', 'Enter'];
 
     public query = new FormControl(undefined);
 
-    constructor(private vs: NgViborService) {
+    constructor(private vs: NgViborService<SModel>) {
         this.query.valueChanges.pipe(
             debounceTime(300),
             distinctUntilChanged()

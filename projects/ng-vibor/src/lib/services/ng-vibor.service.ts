@@ -2,12 +2,21 @@ import { Injectable } from '@angular/core';
 import { Subject, BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
-export class NgViborService {
-  public readonly inputKeyEvent = new Subject<KeyboardEvent>();
-  public readonly query = new BehaviorSubject<string>(undefined);
+export class NgViborService<SModel> {
+    /** События для обработки нажатий клавиш */
+    public readonly inputKeyEvent = new Subject<KeyboardEvent>();
 
-  public readonly showOptions = new Subject<void>();
-  public readonly hideOptions = new Subject<void>();
+    /** Событие изменения текста в инпуте */
+    public readonly query = new BehaviorSubject<string>(undefined);
+
+    /** Событие открытия списка опций */
+    public readonly showOptions = new Subject<void>();
+
+    /** Событие закрытия списка опций */
+    public readonly hideOptions = new Subject<void>();
+
+    /** Событие закрытия списка опций */
+    public readonly elementIsSelected = new Subject<SModel>();
 }
