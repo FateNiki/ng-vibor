@@ -55,7 +55,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
     private pageSize: number;
 
     // Cache
-    private cachedData = Array.from<SModel>({ length: this.length });
+    private cachedData: Array<SModel>;
     private fetchedPages = new Set<number>();
     private query: string;
 
@@ -100,13 +100,6 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
             }))
         ).subscribe();
 
-        const firstSub = this.dataStream.pipe(
-            debounceTime(0)
-        ).subscribe(values => {
-            this.selectedElement.next({element: values[0], index: 0});
-            firstSub.unsubscribe();
-        });
-
         return this.dataStream;
     }
 
@@ -131,20 +124,28 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
 
         this.connector.GetList(this.query, page).subscribe(newValues => {
             // TODO: Нормальный мерж списков (Учитывать что cachedData = undefined)
-            if (!this.cachedData) {
+            const needEmitFistElement = !this.cachedData;
+            if (needEmitFistElement) {
                 this.cachedData = Array.from({length: newValues.length});
             }
 
             this.cachedData.splice(page * this.pageSize, this.pageSize, ...newValues.data);
+
+            if (needEmitFistElement) {
+                this.selectedElement.next({element: this.cachedData[0], index: 0});
+            }
+
             this.dataStream.next(this.cachedData);
         });
     }
 
     private queryChange(newQuery: string) {
-        this.query = newQuery;
-        this.cachedData = undefined;
-        this.fetchedPages.clear();
-        this.fetchPage(0);
+        if (newQuery !== this.query) {
+            this.query = newQuery;
+            this.cachedData = undefined;
+            this.fetchedPages.clear();
+            this.fetchPage(0);
+        }
     }
 
     // Selected
