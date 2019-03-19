@@ -61,7 +61,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
 
     // Data and Subscriber
     public selectedElement = new BehaviorSubject<{element: SModel, index: number} | undefined>(undefined);
-    private dataStream = new BehaviorSubject<(SModel | undefined)[]>(this.cachedData);
+    private dataStream = new BehaviorSubject<(SModel | undefined)[]>([]);
     private subscription;
 
     constructor(
@@ -100,6 +100,8 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
             }))
         ).subscribe();
 
+        this.fetchPage(0); // Из за проблем с инициализацией пустого списка
+
         return this.dataStream;
     }
 
@@ -120,6 +122,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
         if (this.fetchedPages.has(page)) {
             return;
         }
+
         this.fetchedPages.add(page);
 
         this.connector.GetList(this.query, page).subscribe(newValues => {
