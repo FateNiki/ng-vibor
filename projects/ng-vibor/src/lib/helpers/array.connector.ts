@@ -20,9 +20,13 @@ export class ArrayConnector<S, F> extends Connector<S, F> {
             throw new Error('Limit <= Offset');
         }
 
+        const data = this.array.filter(
+            e => !query || (e.toString()).toLowerCase().includes(query.toLowerCase())
+        );
+
         const answer: IConnectorData<S> = {
-            data: this.array.slice(this.Offset(page), this.Limit(page)),
-            length: this.array.length
+            data: data.slice(this.Offset(page), this.Limit(page)),
+            length: data.length
         };
         return of(answer);
     }
