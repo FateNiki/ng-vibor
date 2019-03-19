@@ -20,7 +20,6 @@ export class OptionsViewerComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild(CdkVirtualScrollViewport) scrollViewport: CdkVirtualScrollViewport;
 
     public selectedItem: T;
-    public selectedIndex: number;
     public countElementOnViewer: number;
     public firstElementSub: Subscription;
 
@@ -35,6 +34,7 @@ export class OptionsViewerComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnDestroy() {
         if (this.firstElementSub) this.firstElementSub.unsubscribe();
+        this.dataSource.disconnect();
     }
 
     ngOnChanges() {
