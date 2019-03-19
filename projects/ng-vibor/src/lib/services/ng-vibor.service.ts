@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject, BehaviorSubject } from 'rxjs';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class NgViborService<SModel> {
     /** События для обработки нажатий клавиш */
     public readonly inputKeyEvent = new Subject<KeyboardEvent>();

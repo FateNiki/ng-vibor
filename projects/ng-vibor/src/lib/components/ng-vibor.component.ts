@@ -1,11 +1,10 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, Input, OnInit } from '@angular/core';
 
 import { merge, Subscription } from 'rxjs';
 
 import { NgViborService } from '../services/ng-vibor.service';
 
-import { DataSourceConnector } from '../helpers/connector';
-import { ArrayConnector } from '../helpers/array.connector';
+import { DataSourceConnector, Connector } from '../helpers/connector';
 import { tap } from 'rxjs/operators';
 
 @Component({
@@ -13,11 +12,12 @@ import { tap } from 'rxjs/operators';
     template: `
       <vibor-query-input></vibor-query-input>
       <vibor-options-viewer *ngIf="showOptions" [dataSource]="dataSource"></vibor-options-viewer>
-    `
+    `,
+    providers: [NgViborService]
 })
-export class NgViborComponent<SModel, FModel> implements OnDestroy {
-    private arrayConnector = new ArrayConnector<SModel, FModel>(Array.from({length: 500}).map(Math.random) as any, 50);
-    public dataSource = new DataSourceConnector(this.arrayConnector, this.vs);
+export class NgViborComponent<SModel, FModel> implements OnInit, OnDestroy {
+    @Input() connector: Connector<SModel, FModel>;
+    public dataSource: DataSourceConnector<SModel, FModel>;
 
     public showOptions: boolean;
     private showOptionsSub: Subscription;
@@ -31,6 +31,10 @@ export class NgViborComponent<SModel, FModel> implements OnDestroy {
                 tap(() => this.showOptions = true)
             )
         ).subscribe();
+    }
+
+    ngOnInit() {
+        this.dataSource = new DataSourceConnector<SModel, FModel>(this.connector, this.vs);
     }
 
     ngOnDestroy() {
