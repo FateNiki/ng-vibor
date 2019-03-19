@@ -7,7 +7,7 @@ export class NgViborService<SModel> {
     public readonly inputKeyEvent = new Subject<KeyboardEvent>();
 
     /** Событие изменения текста в инпуте */
-    public readonly query = new BehaviorSubject<string>(undefined);
+    public readonly query = new Subject<string>();
 
     /** Событие открытия списка опций */
     public readonly showOptions = new Subject<void>();

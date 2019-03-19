@@ -1,5 +1,5 @@
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subscription, merge } from 'rxjs';
+import { debounceTime, tap } from 'rxjs/operators';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { NgViborService } from '../services/ng-vibor.service';
 
@@ -62,7 +62,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
     // Data and Subscriber
     public selectedElement = new BehaviorSubject<{element: SModel, index: number} | undefined>(undefined);
     private dataStream = new BehaviorSubject<(SModel | undefined)[]>(this.cachedData);
-    private subscription = new Subscription();
+    private subscription;
 
     constructor(
         private connector: Connector<SModel, FModel>,
@@ -74,31 +74,31 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
 
     /** Base method for connection to virtual scrolling */
     connect(collectionViewer: CollectionViewer): Observable<(SModel | undefined)[]> {
-        this.subscription.add(collectionViewer.viewChange.subscribe(range => {
-            const startPage = this.getPageForIndex(range.start);
-            const endPage = this.getPageForIndex(range.end - 1);
-            for (let i = startPage; i <= endPage; i++) {
-                this.fetchPage(i);
-            }
-        }));
-
-        this.subscription.add(this.vs.query.subscribe(newQuery => {
-            this.queryChange(newQuery);
-        }));
-
-        this.subscription.add(this.vs.inputKeyEvent.subscribe(event => {
-            switch (event.key) {
-                case 'ArrowUp':
-                    this.SelectElement(-1);
-                    break;
-                case 'ArrowDown':
-                    this.SelectElement(1);
-                    break;
-                case 'Enter':
-                    this.vs.selectElement.next(this.selectedElement.value && this.selectedElement.value.element);
-                    break;
-            }
-        }));
+        this.subscription = merge(
+            collectionViewer.viewChange.pipe(tap(range => {
+                const startPage = this.getPageForIndex(range.start);
+                const endPage = this.getPageForIndex(range.end - 1);
+                for (let i = startPage; i <= endPage; i++) {
+                    this.fetchPage(i);
+                }
+            })),
+            this.vs.query.pipe(tap(newQuery => {
+                this.queryChange(newQuery);
+            })),
+            this.vs.inputKeyEvent.pipe(tap(event => {
+                switch (event.key) {
+                    case 'ArrowUp':
+                        this.SelectElement(-1);
+                        break;
+                    case 'ArrowDown':
+                        this.SelectElement(1);
+                        break;
+                    case 'Enter':
+                        this.vs.selectElement.next(this.selectedElement.value && this.selectedElement.value.element);
+                        break;
+                }
+            }))
+        ).subscribe();
 
         const firstSub = this.dataStream.pipe(
             debounceTime(0)
