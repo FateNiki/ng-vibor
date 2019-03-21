@@ -7,13 +7,15 @@ import { TestViborComponent } from './components/ng-vibor-test.component';
 import { OptionsViewerComponent } from './components/options-viewer/options-viewer.component';
 import { QueryInputComponent } from './components/query-input/query-input.component';
 import { ViborSelectComponent } from './components/vibor-select/vibor-select.component';
+import { SelectedElementsComponent } from './components/selected-elements/selected-elements.component';
 
 @NgModule({
     declarations: [
         TestViborComponent,
         OptionsViewerComponent,
         QueryInputComponent,
-        ViborSelectComponent
+        ViborSelectComponent,
+        SelectedElementsComponent
     ],
     imports: [
         CommonModule,
