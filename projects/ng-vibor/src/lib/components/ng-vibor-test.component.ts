@@ -8,14 +8,14 @@ import { DataSourceConnector, Connector } from '../helpers/connector';
 import { tap } from 'rxjs/operators';
 
 @Component({
-    selector: 'vibor-select',
+    selector: 'vibor-test',
     template: `
       <vibor-query-input></vibor-query-input>
       <vibor-options-viewer *ngIf="showOptions" [dataSource]="dataSource"></vibor-options-viewer>
     `,
     providers: [NgViborService]
 })
-export class NgViborComponent<SModel, FModel> implements OnInit, OnDestroy {
+export class TestViborComponent<SModel, FModel> implements OnInit, OnDestroy {
     @Input() connector: Connector<SModel, FModel>;
     public dataSource: DataSourceConnector<SModel, FModel>;
 

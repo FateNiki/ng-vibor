@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
-import { NgViborComponent } from './components/ng-vibor.component';
+import { TestViborComponent } from './components/ng-vibor-test.component';
 import { OptionsViewerComponent } from './components/options-viewer/options-viewer.component';
 import { QueryInputComponent } from './components/query-input/query-input.component';
 
 @NgModule({
     declarations: [
-        NgViborComponent,
+        TestViborComponent,
         OptionsViewerComponent,
         QueryInputComponent
     ],
@@ -19,7 +19,7 @@ import { QueryInputComponent } from './components/query-input/query-input.compon
         ScrollingModule
     ],
     exports: [
-        NgViborComponent
+        TestViborComponent
     ]
 })
 export class NgViborModule { }

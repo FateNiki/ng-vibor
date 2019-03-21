@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NgViborComponent } from './ng-vibor.component';
+import { NgViborComponent } from './ng-vibor-test.component';
 
 describe('NgViborComponent', () => {
   let component: NgViborComponent;
