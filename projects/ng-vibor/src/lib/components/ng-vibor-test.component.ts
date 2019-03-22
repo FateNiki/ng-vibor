@@ -15,7 +15,7 @@ import { tap } from 'rxjs/operators';
     `,
     providers: [NgViborService]
 })
-export class TestViborComponent<SModel, FModel> implements OnInit, OnDestroy {
+export class TestViborComponent<SModel = any, FModel = any> implements OnInit, OnDestroy {
     @Input() connector: Connector<SModel, FModel>;
     public dataSource: DataSourceConnector<SModel, FModel>;
 

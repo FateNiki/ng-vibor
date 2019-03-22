@@ -9,7 +9,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
     styleUrls: ['./query-input.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QueryInputComponent<SModel> {
+export class QueryInputComponent<SModel = any> {
     static readonly emittedKey = ['ArrowUp', 'ArrowDown', 'Enter'];
 
     public query = new FormControl(undefined);

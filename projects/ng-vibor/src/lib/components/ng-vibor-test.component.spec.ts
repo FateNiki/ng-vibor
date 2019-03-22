@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NgViborComponent } from './ng-vibor-test.component';
+import { TestViborComponent } from './ng-vibor-test.component';
 
 describe('NgViborComponent', () => {
-  let component: NgViborComponent;
-  let fixture: ComponentFixture<NgViborComponent>;
+  let component: TestViborComponent;
+  let fixture: ComponentFixture<TestViborComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ NgViborComponent ]
+      declarations: [ TestViborComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(NgViborComponent);
+    fixture = TestBed.createComponent(TestViborComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -15,7 +15,7 @@ export const VIBOR_VALUE_ACCESSOR: any = {
     styleUrls: ['./vibor-select.component.scss'],
     providers: [VIBOR_VALUE_ACCESSOR]
 })
-export class ViborSelectComponent<SModel, FModel> implements OnInit, ControlValueAccessor {
+export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit, ControlValueAccessor {
     // Declaration events
     onChange: (value: FModel) => {};
     onTouched: () => {};
