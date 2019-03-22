@@ -28,7 +28,7 @@ export abstract class Connector<SModel = any, FModel = any> {
     /** Метод преобразования
      * Приведение объектов для хранения в форме
      */
-    public Transform(a: FModel): SModel {
+    public Transform(a: SModel): FModel {
         return a as any;
     }
 
