@@ -106,7 +106,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
 
     /** Disconnect */
     disconnect(): void {
-        this.subscription.unsubscribe();
+        if (this.subscription) this.subscription.unsubscribe();
     }
 
     /** Get needed page
