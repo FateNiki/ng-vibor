@@ -18,9 +18,10 @@ export class QueryInputComponent<SModel = any> {
         this.query.valueChanges.pipe(
             debounceTime(300),
             distinctUntilChanged()
-        ).subscribe(
-            newValue => this.vs.query.next(newValue)
-        );
+        ).subscribe(newValue =>  {
+            console.log(this, newValue);
+            this.vs.query.next(newValue);
+        });
     }
 
     public EmitKeyPress(event: KeyboardEvent): void {
