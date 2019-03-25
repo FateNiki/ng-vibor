@@ -1,10 +1,12 @@
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Component, Input, OnInit, forwardRef } from '@angular/core';
-import { Connector } from '../../helpers/connector';
+import { Component, Input, OnInit, forwardRef, OnDestroy } from '@angular/core';
+import { Connector, DataSourceConnector } from '../../helpers/connector';
+import { Subscription, merge } from 'rxjs';
+import { NgViborService } from '../../services/ng-vibor.service';
+import { tap } from 'rxjs/operators';
 
 export const VIBOR_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
-// tslint:disable-next-line: no-use-before-declare
     useExisting: forwardRef(() => ViborSelectComponent),
     multi: true
 };
@@ -13,9 +15,9 @@ export const VIBOR_VALUE_ACCESSOR: any = {
     selector: 'vibor-select',
     templateUrl: './vibor-select.component.html',
     styleUrls: ['./vibor-select.component.scss'],
-    providers: [VIBOR_VALUE_ACCESSOR]
+    providers: [VIBOR_VALUE_ACCESSOR, NgViborService]
 })
-export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit, ControlValueAccessor {
+export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit, OnDestroy, ControlValueAccessor {
     // Declaration events
     onChange: (value: FModel) => {};
     onTouched: () => {};
@@ -24,12 +26,32 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     @Input() connector: Connector<SModel, FModel>;
 
     // Local variable
+    public dataSource: DataSourceConnector<SModel, FModel>;
+    public showOptions: boolean;
+    private showOptionsSub: Subscription;
+
+    // Models
     private localFValue: FModel;
     private localSValue: SModel;
 
-    constructor() { }
+    constructor(private vs: NgViborService<SModel>) {
+        this.showOptionsSub = merge(
+            this.vs.hideOptions.pipe(
+                tap(() => this.showOptions = false)
+            ),
+            this.vs.showOptions.pipe(
+                tap(() => this.showOptions = true)
+            )
+        ).subscribe();
+    }
 
-    ngOnInit(): void {    }
+    ngOnInit() {
+        this.dataSource = new DataSourceConnector<SModel, FModel>(this.connector, this.vs);
+    }
+
+    ngOnDestroy() {
+        if (this.showOptionsSub) this.showOptionsSub.unsubscribe();
+    }
 
     /** Установка значений внутри компонента */
     set value(value: SModel) {
