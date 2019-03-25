@@ -3,7 +3,7 @@ import { Component, Input, OnInit, forwardRef, OnDestroy } from '@angular/core';
 import { Connector, DataSourceConnector } from '../../helpers/connector';
 import { Subscription, merge } from 'rxjs';
 import { NgViborService } from '../../services/ng-vibor.service';
-import { tap } from 'rxjs/operators';
+import { tap, distinctUntilChanged } from 'rxjs/operators';
 
 export const VIBOR_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
@@ -45,6 +45,12 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
                 tap(() => this.showOptions = true)
             )
         ).subscribe();
+
+        this.vs.chooseOptions.pipe(
+            distinctUntilChanged()
+        ).subscribe(newValue => {
+            this.value = newValue;
+        });
     }
 
     ngOnInit() {

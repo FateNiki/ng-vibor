@@ -1,15 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'vibor-selected-elements',
   templateUrl: './selected-elements.component.html',
-  styleUrls: ['./selected-elements.component.scss']
+  styleUrls: ['./selected-elements.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SelectedElementsComponent implements OnInit {
+export class SelectedElementsComponent<SModel> {
+    @Input() value: SModel;
 
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+    constructor() { }
 }
