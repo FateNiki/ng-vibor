@@ -51,7 +51,6 @@ export abstract class Connector<SModel = any, FModel = any> {
 
 export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | undefined> {
     // Const
-    private length: number;
     private pageSize: number;
 
     // Cache
