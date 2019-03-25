@@ -81,9 +81,11 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
                     this.fetchPage(i);
                 }
             })),
+
             this.vs.query.pipe(tap(newQuery => {
                 this.queryChange(newQuery);
             })),
+
             this.vs.inputKeyEvent.pipe(tap(event => {
                 switch (event.key) {
                     case 'ArrowUp':
@@ -93,11 +95,15 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
                         this.SelectElement(1);
                         break;
                     case 'Enter':
-                        this.vs.selectElement.next(this.selectedElement.value && this.selectedElement.value.element);
+                        this.vs.chooseOptions.next(this.selectedElement.value && this.selectedElement.value.element);
                         break;
                 }
             }))
         ).subscribe();
+
+        if (this.cachedData && this.cachedData.length) {
+            this.selectedElement.next({element: this.cachedData[0], index: 0});
+        }
 
         this.fetchPage(0); // Из за проблем с инициализацией пустого списка
 
@@ -126,6 +132,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
 
         this.connector.GetList(this.query, page).subscribe(newValues => {
             // TODO: Нормальный мерж списков (Учитывать что cachedData = undefined)
+
             const needEmitFistElement = !this.cachedData;
             if (needEmitFistElement) {
                 this.cachedData = Array.from({length: newValues.length});
