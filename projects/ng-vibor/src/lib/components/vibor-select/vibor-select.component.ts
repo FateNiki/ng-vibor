@@ -50,11 +50,13 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         }
     }
 
+    /** Запись значений снаружи */
     writeValue(obj: FModel): void {
         this.localFValue = obj;
         this.localSValue = this.connector.TransformBack(obj);
     }
 
+    /** Установка атрибута disabled */
     setDisabledState(isDisabled: boolean): void {
     }
 
