@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { NgViborService } from '../../services/ng-vibor.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -14,27 +14,34 @@ export class QueryInputComponent<SModel = any> {
 
     public query = new FormControl(undefined);
 
+    private blurTimer;
+
     constructor(private vs: NgViborService<SModel>) {
         this.query.valueChanges.pipe(
             debounceTime(300),
             distinctUntilChanged()
         ).subscribe(newValue =>  {
-            console.log(this, newValue);
             this.vs.query.next(newValue);
         });
     }
 
     public EmitKeyPress(event: KeyboardEvent): void {
         if (QueryInputComponent.emittedKey.includes(event.key)) {
+            if (event.key === 'Enter') {
+                (event.target as HTMLInputElement).blur();
+            }
             this.vs.inputKeyEvent.next(event);
         }
     }
 
     public Focus() {
+        if (this.blurTimer) clearTimeout(this.blurTimer);
         this.vs.showOptions.next();
     }
 
     public Blur() {
-        this.vs.hideOptions.next();
+        this.blurTimer = setTimeout(() => {
+            this.vs.hideOptions.next();
+        }, 100);
     }
 }

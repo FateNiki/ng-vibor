@@ -4,6 +4,7 @@ import { DataSourceConnector } from '../../helpers/connector';
 import { Subscription } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { filter } from 'rxjs/operators';
+import { NgViborService } from '../../services/ng-vibor.service';
 
 declare type T = string;
 
@@ -12,7 +13,7 @@ declare type T = string;
     templateUrl: './options-viewer.component.html',
     styleUrls: ['./options-viewer.component.scss']
 })
-export class OptionsViewerComponent implements OnInit, OnChanges, OnDestroy {
+export class OptionsViewerComponent<SModel> implements OnInit, OnChanges, OnDestroy {
     @Input() public dataSource: DataSourceConnector<any, any>;
     @Input() public itemSize = 50;
     @Input() public optionsViewerSize = 300;
@@ -22,6 +23,9 @@ export class OptionsViewerComponent implements OnInit, OnChanges, OnDestroy {
     public selectedItem: T;
     public countElementOnViewer: number;
     public firstElementSub: Subscription;
+    public selectSub: Subscription;
+
+    constructor(private vs: NgViborService<SModel>) { }
 
     ngOnInit() {
         this.firstElementSub = this.dataSource.selectedElement.pipe(
@@ -43,6 +47,11 @@ export class OptionsViewerComponent implements OnInit, OnChanges, OnDestroy {
 
     private focusSelectedOption(currentIndex: number): void {
         this.scrollViewport.scrollToIndex(currentIndex);
+    }
+
+    public ChooseOptions(element: SModel, event: Event) {
+        event.stopPropagation();
+        this.vs.chooseOptions.next(element);
     }
 }
 

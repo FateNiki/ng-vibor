@@ -37,7 +37,9 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     constructor(private vs: NgViborService<SModel>) {
         this.showOptionsSub = merge(
             this.vs.hideOptions.pipe(
-                tap(() => this.showOptions = false)
+                tap(() => {
+                    this.showOptions = false;
+                })
             ),
             this.vs.showOptions.pipe(
                 tap(() => this.showOptions = true)

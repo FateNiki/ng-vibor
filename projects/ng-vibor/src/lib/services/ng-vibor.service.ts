@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class NgViborService<SModel> {
@@ -16,10 +16,11 @@ export class NgViborService<SModel> {
     public readonly hideOptions = new Subject<void>();
 
     /** Событие закрытия списка опций */
-    public readonly selectElement = new Subject<SModel>();
+    public readonly chooseOptions = new Subject<SModel>();
 
     constructor() {
-        this.selectElement.subscribe(() => {
+        this.chooseOptions.subscribe(event => {
+            console.log(event);
             this.hideOptions.next();
         });
     }
