@@ -5,6 +5,7 @@
 
 .example-item {
     height: 50px;
+    cursor: pointer;
 
     &.selected {
         background-color: azure;
