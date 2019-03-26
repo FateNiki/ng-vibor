@@ -29,7 +29,9 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     // Local variable
     public dataSource: DataSourceConnector<SModel, FModel>;
     public showOptions: boolean;
-    public loading: boolean = false;
+    public loading: boolean;
+
+    // Subscription
     private subs = new Subscription();
 
     // Models

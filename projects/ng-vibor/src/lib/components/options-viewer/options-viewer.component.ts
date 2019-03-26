@@ -54,6 +54,7 @@ export class OptionsViewerComponent<SModel> implements OnInit, OnChanges, OnDest
         this.scrollViewport.scrollToIndex(currentIndex);
     }
 
+    /** Выбор опции по клику */
     public ChooseOptions(element: SModel) {
         this.vs.chooseOptions.next(element);
     }
