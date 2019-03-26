@@ -94,9 +94,6 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
                     case 'ArrowDown':
                         this.SelectElement(1);
                         break;
-                    case 'Enter':
-                        this.vs.chooseOptions.next(this.selectedElement.value && this.selectedElement.value.element);
-                        break;
                 }
             }))
         ).subscribe();
