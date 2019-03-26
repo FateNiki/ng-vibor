@@ -1,5 +1,5 @@
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Component, Input, OnInit, forwardRef, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, forwardRef, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Connector, DataSourceConnector } from '../../helpers/connector';
 import { NgViborService } from '../../services/ng-vibor.service';
 import { distinctUntilChanged, filter, map } from 'rxjs/operators';
@@ -15,7 +15,8 @@ export const VIBOR_VALUE_ACCESSOR: any = {
     selector: 'vibor-select',
     templateUrl: './vibor-select.component.html',
     styleUrls: ['./vibor-select.component.scss'],
-    providers: [VIBOR_VALUE_ACCESSOR, NgViborService]
+    providers: [VIBOR_VALUE_ACCESSOR, NgViborService],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit, OnDestroy, ControlValueAccessor {
     // Declaration events
@@ -28,23 +29,29 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     // Local variable
     public dataSource: DataSourceConnector<SModel, FModel>;
     public showOptions: boolean;
+    public loading: boolean = false;
     private subs = new Subscription();
 
     // Models
     private localFValue: FModel;
     private localSValue: SModel;
 
-    constructor(private vs: NgViborService<SModel>) {
+    constructor(
+        private vs: NgViborService<SModel>,
+        private cdr: ChangeDetectorRef
+    ) {
         this.subs.add(this.vs.showOptions$.pipe(
             distinctUntilChanged()
         ).subscribe(event => {
             this.showOptions = event;
+            this.cdr.markForCheck();
         }));
 
         this.subs.add(this.vs.chooseOptions.pipe(
             distinctUntilChanged()
         ).subscribe(newValue => {
             this.value = newValue;
+            this.cdr.markForCheck();
         }));
 
         this.subs.add(this.vs.inputKeyEvent.pipe(
@@ -57,11 +64,18 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         ).subscribe(selectedElement => {
             this.vs.chooseOptions.next(selectedElement);
             this.vs.HideOptions();
+            this.cdr.markForCheck();
         }));
     }
 
     ngOnInit() {
         this.dataSource = new DataSourceConnector<SModel, FModel>(this.connector, this.vs);
+
+        this.subs.add(this.dataSource.loading$.subscribe(pages => {
+            console.log(pages);
+            this.loading = pages.length > 0;
+            this.cdr.markForCheck();
+        }));
     }
 
     ngOnDestroy() {

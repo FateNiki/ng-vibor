@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable, Subscription, merge } from 'rxjs';
-import { debounceTime, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { NgViborService } from '../services/ng-vibor.service';
 
@@ -61,7 +61,9 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
     // Data and Subscriber
     public selectedElement = new BehaviorSubject<{element: SModel, index: number} | undefined>(undefined);
     private dataStream = new BehaviorSubject<(SModel | undefined)[]>([]);
-    private subscription;
+    private loadingSubject = new BehaviorSubject<number[]>([]);
+    public loading$ = this.loadingSubject.asObservable();
+    private subscription: Subscription;
 
     constructor(
         private connector: Connector<SModel, FModel>,
@@ -126,6 +128,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
         }
 
         this.fetchedPages.add(page);
+        this.loadingSubject.next([...this.loadingSubject.value, page]);
 
         this.connector.GetList(this.query, page).subscribe(newValues => {
             // TODO: Нормальный мерж списков (Учитывать что cachedData = undefined)
@@ -142,6 +145,9 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
             }
 
             this.dataStream.next(this.cachedData);
+            const pages = this.loadingSubject.value;
+            pages.splice(pages.indexOf(page), 1);
+            this.loadingSubject.next(pages);
         });
     }
 

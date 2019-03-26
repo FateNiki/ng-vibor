@@ -1,5 +1,6 @@
-import { Observable, of } from 'rxjs';
+import { Observable, timer } from 'rxjs';
 import { Connector, IConnectorData } from './connector';
+import { map } from 'rxjs/operators';
 
 export class ArrayConnector<S, F> extends Connector<S, F> {
     constructor(private array: Array<S> = [], limit: number, Comparator?: (a: S, b: S) => boolean) {
@@ -28,7 +29,7 @@ export class ArrayConnector<S, F> extends Connector<S, F> {
             data: data.slice(this.Offset(page), this.Limit(page)),
             length: data.length
         };
-        return of(answer);
+        return timer(3000).pipe(map(() => answer));
     }
 
     public TransformBack(a: any): any {
