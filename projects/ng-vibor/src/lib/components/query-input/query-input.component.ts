@@ -19,22 +19,29 @@ export class QueryInputComponent<SModel = any> implements OnDestroy {
     private subs = new Subscription();
 
     constructor(private vs: NgViborService<SModel>) {
-        this.subs.add(this.query.valueChanges.pipe(
-            debounceTime(300),
-            distinctUntilChanged()
-        ).subscribe(newValue =>  {
-            this.vs.query.next(newValue);
-        }));
-
-        this.subs.add(this.vs.showOptions$.pipe(
-            filter(show => show === false && this.input.nativeElement === document.activeElement)
-        ).subscribe(() => {
-            this.input.nativeElement.blur();
-        }));
+        this.subs.add(this.ValueChangesSubscription);
+        this.subs.add(this.ShowOptionsSubscription);
     }
 
     ngOnDestroy() {
         this.subs.unsubscribe();
+    }
+
+    private get ValueChangesSubscription(): Subscription {
+        return this.query.valueChanges.pipe(
+            debounceTime(300),
+            distinctUntilChanged()
+        ).subscribe(newValue =>  {
+            this.vs.query.next(newValue);
+        });
+    }
+
+    private get ShowOptionsSubscription(): Subscription {
+        return this.vs.showOptions$.pipe(
+            filter(show => show === false && this.input.nativeElement === document.activeElement)
+        ).subscribe(() => {
+            this.input.nativeElement.blur();
+        });
     }
 
     public EmitKeyPress(event: KeyboardEvent): void {

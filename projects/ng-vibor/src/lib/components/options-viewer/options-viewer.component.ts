@@ -27,12 +27,7 @@ export class OptionsViewerComponent<SModel> implements OnInit, OnChanges, OnDest
     constructor(private vs: NgViborService<SModel>) { }
 
     ngOnInit() {
-        this.subs.add(this.dataSource.selectedElement.pipe(
-            filter(value => !!value)
-        ).subscribe(value => {
-            this.selectedItem = value.element;
-            this.focusSelectedOption(value.index);
-        }));
+        this.subs.add(this.ChangeSelectionSubscription);
     }
 
     ngOnDestroy() {
@@ -42,6 +37,15 @@ export class OptionsViewerComponent<SModel> implements OnInit, OnChanges, OnDest
 
     ngOnChanges() {
         this.countElementOnViewer = Math.ceil(this.optionsViewerSize / this.itemSize);
+    }
+
+    private get ChangeSelectionSubscription(): Subscription {
+        return this.dataSource.selectedElement.pipe(
+            filter(value => !!value)
+        ).subscribe(value => {
+            this.selectedItem = value.element;
+            this.focusSelectedOption(value.index);
+        });
     }
 
     private focusSelectedOption(currentIndex: number): void {

@@ -40,21 +40,29 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         private vs: NgViborService<SModel>,
         private cdr: ChangeDetectorRef
     ) {
-        this.subs.add(this.vs.showOptions$.pipe(
-            distinctUntilChanged()
-        ).subscribe(event => {
-            this.showOptions = event;
-            this.cdr.markForCheck();
-        }));
+        this.subs.add(this.ShowOptionsSubscription);
+        this.subs.add(this.ChooseOptionSubscription);
+        this.subs.add(this.EnterSubscription);
+    }
 
-        this.subs.add(this.vs.chooseOptions.pipe(
-            distinctUntilChanged()
-        ).subscribe(newValue => {
-            this.value = newValue;
-            this.cdr.markForCheck();
-        }));
+    ngOnInit() {
+        this.dataSource = new DataSourceConnector<SModel, FModel>(this.connector, this.vs);
+        this.subs.add(this.LoadingSubscription);
+    }
 
-        this.subs.add(this.vs.inputKeyEvent.pipe(
+    ngOnDestroy() {
+        this.subs.unsubscribe();
+    }
+
+    private get LoadingSubscription(): Subscription {
+        return this.dataSource.loading$.subscribe(pages => {
+            this.loading = pages.length > 0;
+            this.cdr.markForCheck();
+        });
+    }
+
+    private get EnterSubscription(): Subscription {
+        return this.vs.inputKeyEvent.pipe(
             filter(event => {
                 return this.showOptions && event.code === 'Enter';
             }),
@@ -65,21 +73,25 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
             this.vs.chooseOptions.next(selectedElement);
             this.vs.HideOptions();
             this.cdr.markForCheck();
-        }));
+        });
     }
 
-    ngOnInit() {
-        this.dataSource = new DataSourceConnector<SModel, FModel>(this.connector, this.vs);
-
-        this.subs.add(this.dataSource.loading$.subscribe(pages => {
-            console.log(pages);
-            this.loading = pages.length > 0;
+    private get ChooseOptionSubscription(): Subscription {
+        return this.vs.chooseOptions.pipe(
+            distinctUntilChanged()
+        ).subscribe(newValue => {
+            this.value = newValue;
             this.cdr.markForCheck();
-        }));
+        });
     }
 
-    ngOnDestroy() {
-        this.subs.unsubscribe();
+    private get ShowOptionsSubscription(): Subscription {
+        return this.vs.showOptions$.pipe(
+            distinctUntilChanged()
+        ).subscribe(event => {
+            this.showOptions = event;
+            this.cdr.markForCheck();
+        });
     }
 
     /** Установка значений внутри компонента */
