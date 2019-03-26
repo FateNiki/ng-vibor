@@ -54,6 +54,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         this.subs.unsubscribe();
     }
 
+    /** Подписчик на обработку загружаемых страниц */
     private get LoadingSubscription(): Subscription {
         return this.dataSource.loading$.subscribe(pages => {
             this.loading = pages.length > 0;
@@ -61,6 +62,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         });
     }
 
+    /** Подписчик на нажатие клавиши Enter */
     private get EnterSubscription(): Subscription {
         return this.vs.inputKeyEvent.pipe(
             filter(event => {
@@ -76,6 +78,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         });
     }
 
+    /** Подписчик на выбор элемента из списка */
     private get ChooseOptionSubscription(): Subscription {
         return this.vs.chooseOptions.pipe(
             distinctUntilChanged()
@@ -85,6 +88,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         });
     }
 
+    /** Подписчик на отображени и скрытие выпадающего списка */
     private get ShowOptionsSubscription(): Subscription {
         return this.vs.showOptions$.pipe(
             distinctUntilChanged()

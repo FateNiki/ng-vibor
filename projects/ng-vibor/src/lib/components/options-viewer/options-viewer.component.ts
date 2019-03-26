@@ -39,6 +39,7 @@ export class OptionsViewerComponent<SModel> implements OnInit, OnChanges, OnDest
         this.countElementOnViewer = Math.ceil(this.optionsViewerSize / this.itemSize);
     }
 
+    /** Подписчик на изменение выделенного элемента */
     private get ChangeSelectionSubscription(): Subscription {
         return this.dataSource.selectedElement.pipe(
             filter(value => !!value)
@@ -48,6 +49,7 @@ export class OptionsViewerComponent<SModel> implements OnInit, OnChanges, OnDest
         });
     }
 
+    /** Отображение выделенного элемента в scrollViewport  */
     private focusSelectedOption(currentIndex: number): void {
         this.scrollViewport.scrollToIndex(currentIndex);
     }
