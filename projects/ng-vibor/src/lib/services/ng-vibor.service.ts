@@ -9,19 +9,19 @@ export class NgViborService<SModel> {
     /** Событие изменения текста в инпуте */
     public readonly query = new Subject<string>();
 
-    /** Событие открытия списка опций */
-    public readonly showOptions = new Subject<void>();
-
-    /** Событие закрытия списка опций */
-    public readonly hideOptions = new Subject<void>();
-
     /** Событие закрытия списка опций */
     public readonly chooseOptions = new Subject<SModel>();
 
-    constructor() {
-        this.chooseOptions.subscribe(event => {
-            console.log(event);
-            this.hideOptions.next();
-        });
+
+    /** Событие открытия списка опций */
+    private readonly showOptions = new Subject<boolean>();
+    public readonly showOptions$ = this.showOptions.asObservable();
+
+    public HideOptions(): void {
+        this.showOptions.next(false);
+    }
+
+    public ShowOptions(): void {
+        this.showOptions.next(true);
     }
 }

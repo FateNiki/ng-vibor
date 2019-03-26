@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { NgViborService } from '../../services/ng-vibor.service';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 
 @Component({
     selector: 'vibor-query-input',
@@ -11,10 +11,9 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 })
 export class QueryInputComponent<SModel = any> {
     static readonly emittedKey = ['ArrowUp', 'ArrowDown', 'Enter'];
+    @ViewChild('input') input: ElementRef<HTMLInputElement>;
 
     public query = new FormControl(undefined);
-
-    private blurTimer;
 
     constructor(private vs: NgViborService<SModel>) {
         this.query.valueChanges.pipe(
@@ -23,25 +22,25 @@ export class QueryInputComponent<SModel = any> {
         ).subscribe(newValue =>  {
             this.vs.query.next(newValue);
         });
+
+        this.vs.showOptions$.pipe(
+            filter(show => show === false && this.input.nativeElement === document.activeElement)
+        ).subscribe(() => {
+            this.input.nativeElement.blur();
+        });
     }
 
     public EmitKeyPress(event: KeyboardEvent): void {
         if (QueryInputComponent.emittedKey.includes(event.key)) {
-            if (event.key === 'Enter') {
-                (event.target as HTMLInputElement).blur();
-            }
             this.vs.inputKeyEvent.next(event);
         }
     }
 
     public Focus() {
-        if (this.blurTimer) clearTimeout(this.blurTimer);
-        this.vs.showOptions.next();
+        this.vs.ShowOptions();
     }
 
     public Blur() {
-        this.blurTimer = setTimeout(() => {
-            this.vs.hideOptions.next();
-        }, 100);
+        setTimeout(() => this.vs.HideOptions(), 100);
     }
 }

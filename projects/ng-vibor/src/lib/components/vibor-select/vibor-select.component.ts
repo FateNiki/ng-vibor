@@ -1,9 +1,8 @@
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Component, Input, OnInit, forwardRef, OnDestroy } from '@angular/core';
 import { Connector, DataSourceConnector } from '../../helpers/connector';
-import { Subscription, merge } from 'rxjs';
 import { NgViborService } from '../../services/ng-vibor.service';
-import { tap, distinctUntilChanged } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map } from 'rxjs/operators';
 
 export const VIBOR_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
@@ -28,28 +27,34 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     // Local variable
     public dataSource: DataSourceConnector<SModel, FModel>;
     public showOptions: boolean;
-    private showOptionsSub: Subscription;
 
     // Models
     private localFValue: FModel;
     private localSValue: SModel;
 
     constructor(private vs: NgViborService<SModel>) {
-        this.showOptionsSub = merge(
-            this.vs.hideOptions.pipe(
-                tap(() => {
-                    this.showOptions = false;
-                })
-            ),
-            this.vs.showOptions.pipe(
-                tap(() => this.showOptions = true)
-            )
-        ).subscribe();
+        this.vs.showOptions$.pipe(
+            distinctUntilChanged()
+        ).subscribe(event => {
+            this.showOptions = event;
+        });
 
         this.vs.chooseOptions.pipe(
             distinctUntilChanged()
         ).subscribe(newValue => {
             this.value = newValue;
+        });
+
+        this.vs.inputKeyEvent.pipe(
+            filter(event => {
+                return this.showOptions && event.code === 'Enter';
+            }),
+            map(() => {
+                return this.dataSource.selectedElement.value && this.dataSource.selectedElement.value.element;
+            })
+        ).subscribe(selectedElement => {
+            this.vs.chooseOptions.next(selectedElement);
+            this.vs.HideOptions();
         });
     }
 
@@ -58,7 +63,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     }
 
     ngOnDestroy() {
-        if (this.showOptionsSub) this.showOptionsSub.unsubscribe();
+        // if (this.showOptionsSub) this.showOptionsSub.unsubscribe();
     }
 
     /** Установка значений внутри компонента */
