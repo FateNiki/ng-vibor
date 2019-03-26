@@ -3,6 +3,7 @@ import { Component, Input, OnInit, forwardRef, OnDestroy } from '@angular/core';
 import { Connector, DataSourceConnector } from '../../helpers/connector';
 import { NgViborService } from '../../services/ng-vibor.service';
 import { distinctUntilChanged, filter, map } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 export const VIBOR_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
@@ -27,25 +28,26 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     // Local variable
     public dataSource: DataSourceConnector<SModel, FModel>;
     public showOptions: boolean;
+    private subs = new Subscription();
 
     // Models
     private localFValue: FModel;
     private localSValue: SModel;
 
     constructor(private vs: NgViborService<SModel>) {
-        this.vs.showOptions$.pipe(
+        this.subs.add(this.vs.showOptions$.pipe(
             distinctUntilChanged()
         ).subscribe(event => {
             this.showOptions = event;
-        });
+        }));
 
-        this.vs.chooseOptions.pipe(
+        this.subs.add(this.vs.chooseOptions.pipe(
             distinctUntilChanged()
         ).subscribe(newValue => {
             this.value = newValue;
-        });
+        }));
 
-        this.vs.inputKeyEvent.pipe(
+        this.subs.add(this.vs.inputKeyEvent.pipe(
             filter(event => {
                 return this.showOptions && event.code === 'Enter';
             }),
@@ -55,7 +57,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         ).subscribe(selectedElement => {
             this.vs.chooseOptions.next(selectedElement);
             this.vs.HideOptions();
-        });
+        }));
     }
 
     ngOnInit() {
@@ -63,7 +65,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     }
 
     ngOnDestroy() {
-        // if (this.showOptionsSub) this.showOptionsSub.unsubscribe();
+        this.subs.unsubscribe();
     }
 
     /** Установка значений внутри компонента */

@@ -22,22 +22,21 @@ export class OptionsViewerComponent<SModel> implements OnInit, OnChanges, OnDest
 
     public selectedItem: T;
     public countElementOnViewer: number;
-    public firstElementSub: Subscription;
-    public selectSub: Subscription;
+    public subs = new Subscription();
 
     constructor(private vs: NgViborService<SModel>) { }
 
     ngOnInit() {
-        this.firstElementSub = this.dataSource.selectedElement.pipe(
+        this.subs.add(this.dataSource.selectedElement.pipe(
             filter(value => !!value)
         ).subscribe(value => {
             this.selectedItem = value.element;
             this.focusSelectedOption(value.index);
-        });
+        }));
     }
 
     ngOnDestroy() {
-        if (this.firstElementSub) this.firstElementSub.unsubscribe();
+        this.subs.unsubscribe();
         this.dataSource.disconnect();
     }
 
