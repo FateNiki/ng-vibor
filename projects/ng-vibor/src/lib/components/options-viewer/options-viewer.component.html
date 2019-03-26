@@ -4,7 +4,7 @@
     [style.height.px]="optionsViewerSize">
 
     <div class="example-item"
-        (click)="ChooseOptions(item, $event)"
+        (click)="ChooseOptions(item)"
         *cdkVirtualFor="let item of dataSource"
         [class.selected]="selectedItem && selectedItem === item">
 
