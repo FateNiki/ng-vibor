@@ -1,9 +1,14 @@
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Component, Input, OnInit, forwardRef, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, forwardRef, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy, ElementRef, ViewChild, Injector } from '@angular/core';
 import { Connector, DataSourceConnector } from '../../helpers/connector';
 import { NgViborService } from '../../services/ng-vibor.service';
 import { distinctUntilChanged, filter, map } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { OverlayRef, Overlay, ViewportRuler, FlexibleConnectedPositionStrategy, OverlayConfig, PositionStrategy } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
+import { OptionsViewerComponent } from '../options-viewer/options-viewer.component';
+import { QueryInputComponent } from '../query-input/query-input.component';
+import { DataSourceToken, ItemHeightToken, OptionsViewerSizeToken } from '../../injection.token';
 
 export const VIBOR_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
@@ -25,14 +30,21 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     // Inputs
     @Input() connector: Connector<SModel, FModel>;
+    @ViewChild('queryInput') queryInputComponent: QueryInputComponent<SModel>;
 
     // Local variable
     public dataSource: DataSourceConnector<SModel, FModel>;
-    public showOptions: boolean;
+    public optionsOpen: boolean;
     public loading: boolean;
 
     // Subscription
     private subs = new Subscription();
+    private viewportSubscription = Subscription.EMPTY;
+
+    // Overlays
+    private _overlayRef: OverlayRef | null;
+    private _portal: ComponentPortal<OptionsViewerComponent<SModel>> | null;
+    private _positionStrategy: PositionStrategy;
 
     // Models
     private localFValue: FModel;
@@ -40,11 +52,12 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     constructor(
         private vs: NgViborService<SModel>,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private overlay: Overlay,
+        private viewportRuler: ViewportRuler
     ) {
         this.subs.add(this.ShowOptionsSubscription);
         this.subs.add(this.ChooseOptionSubscription);
-        this.subs.add(this.EnterSubscription);
     }
 
     ngOnInit() {
@@ -64,22 +77,6 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         });
     }
 
-    /** Подписчик на нажатие клавиши Enter */
-    private get EnterSubscription(): Subscription {
-        return this.vs.inputKeyEvent.pipe(
-            filter(event => {
-                return this.showOptions && event.code === 'Enter';
-            }),
-            map(() => {
-                return this.dataSource.selectedElement.value && this.dataSource.selectedElement.value.element;
-            })
-        ).subscribe(selectedElement => {
-            this.vs.chooseOptions.next(selectedElement);
-            this.vs.HideOptions();
-            this.cdr.markForCheck();
-        });
-    }
-
     /** Подписчик на выбор элемента из списка */
     private get ChooseOptionSubscription(): Subscription {
         return this.vs.chooseOptions.pipe(
@@ -94,8 +91,12 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     private get ShowOptionsSubscription(): Subscription {
         return this.vs.showOptions$.pipe(
             distinctUntilChanged()
-        ).subscribe(event => {
-            this.showOptions = event;
+        ).subscribe(open => {
+            if (open) {
+                this._attachOverlay();
+            } else {
+                this._detachOverlay();
+            }
             this.cdr.markForCheck();
         });
     }
@@ -123,13 +124,149 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     writeValue(obj: FModel): void {
         this.localFValue = obj;
         this.localSValue = this.connector.TransformBack(obj);
+        this.cdr.markForCheck();
     }
 
     /** Установка атрибута disabled */
     setDisabledState(isDisabled: boolean): void {
+        this.cdr.markForCheck();
     }
 
     // Register events
     registerOnChange(fn: any): void { this.onChange = fn; }
     registerOnTouched(fn: any): void { this.onTouched = fn; }
+
+
+    private _attachOverlay(): void {
+        let overlayRef = this._overlayRef;
+        this.optionsOpen = true;
+
+        if (!overlayRef) {
+            this._portal = this._getPortal();
+            this._overlayRef = overlayRef = this.overlay.create(this._getOverlayConfig());
+
+
+            // Use the `keydownEvents` in order to take advantage of
+            // the overlay event targeting provided by the CDK overlay.
+            overlayRef.keydownEvents().pipe(
+                filter(event => {
+                    return event.code === 'Escape' || (event.code === 'ArrowUp' && event.altKey) || event.code === 'Enter';
+                }),
+                map(event => {
+                    if (event.code === 'Escape' || (event.code === 'ArrowUp' && event.altKey)) {
+                        return 'close';
+                    } else if (event.code === 'Enter') {
+                        return 'choose';
+                    }
+                })
+            ).subscribe(event => {
+                // Close when pressing ESCAPE or ALT + UP_ARROW, based on the a11y guidelines.
+                // See: https://www.w3.org/TR/wai-aria-practices-1.1/#textbox-keyboard-interaction
+                switch (event) {
+                    case 'choose':
+                        const selectedElement = this.dataSource.selectedElement.value && this.dataSource.selectedElement.value.element;
+                        this.vs.chooseOptions.next(selectedElement);
+                        this.vs.HideOptions();
+                        this.cdr.markForCheck();
+                        break;
+
+                    case 'choose':
+                        this.vs.HideOptions();
+                        break;
+                }
+            });
+
+            if (this.viewportRuler) {
+                this.viewportSubscription = this.viewportRuler.change().subscribe(() => {
+                    if (this.optionsOpen && overlayRef) {
+                        overlayRef.updateSize({ width: this._getPanelWidth() });
+                    }
+                });
+            }
+        } else {
+            const position = overlayRef.getConfig().positionStrategy as FlexibleConnectedPositionStrategy;
+
+            // Update the trigger, panel width and direction, in case anything has changed.
+            position.setOrigin(this.queryInputComponent.input);
+            overlayRef.updateSize({ width: this._getPanelWidth() });
+        }
+
+        if (overlayRef && !overlayRef.hasAttached()) {
+            overlayRef.attach(this._portal);
+            // this._closingActionsSubscription = this._subscribeToClosingActions();
+        }
+    }
+
+    /** Closes the autocomplete suggestion panel. */
+    private _detachOverlay(): void {
+        if (!this.optionsOpen) {
+            return;
+        }
+
+        this.optionsOpen = false;
+
+        if (this._overlayRef && this._overlayRef.hasAttached()) {
+            this._overlayRef.detach();
+            //   this._closingActionsSubscription.unsubscribe();
+        }
+    }
+
+    private _getOverlayConfig(): OverlayConfig {
+        return new OverlayConfig({
+            positionStrategy: this._getOverlayPosition(),
+            width: this._getPanelWidth()
+        });
+    }
+
+    private _getPortal(): ComponentPortal<OptionsViewerComponent<SModel>> {
+        const injector = Injector.create({
+            providers: [
+                { provide: NgViborService, useValue: this.vs },
+                { provide: DataSourceToken, useValue: this.dataSource },
+                { provide: ItemHeightToken, useValue: 30 },
+                { provide: OptionsViewerSizeToken, useValue: 300 },
+            ]
+        });
+        return new ComponentPortal<OptionsViewerComponent<SModel>>(OptionsViewerComponent, null, injector);
+    }
+
+    private _getOverlayPosition(): PositionStrategy {
+        this._positionStrategy = this.overlay.position()
+            .flexibleConnectedTo(this.queryInputComponent.input)
+            .withFlexibleDimensions(false)
+            .withPush(false)
+            .withPositions([
+                {
+                    originX: 'start',
+                    originY: 'bottom',
+                    overlayX: 'start',
+                    overlayY: 'top'
+                },
+                {
+                    originX: 'start',
+                    originY: 'top',
+                    overlayX: 'start',
+                    overlayY: 'bottom',
+
+                    // The overlay edge connected to the trigger should have squared corners, while
+                    // the opposite end has rounded corners. We apply a CSS class to swap the
+                    // border-radius based on the overlay position.
+                    panelClass: 'mat-autocomplete-panel-above'
+                }
+            ]);
+
+        return this._positionStrategy;
+    }
+
+    private _getPanelWidth(): number | string {
+        // TODO: panelWidth - инпут
+        const panelWidth = undefined;
+        return panelWidth || this._getHostWidth();
+    }
+
+    /** Returns the width of the input element, so the panel width can match it. */
+    private _getHostWidth(): number {
+        return this.queryInputComponent.input.nativeElement.getBoundingClientRect().width;
+    }
+
 }

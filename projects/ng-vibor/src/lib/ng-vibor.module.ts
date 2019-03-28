@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { PortalModule } from '@angular/cdk/portal';
 
 import { OptionsViewerComponent } from './components/options-viewer/options-viewer.component';
 import { QueryInputComponent } from './components/query-input/query-input.component';
@@ -18,10 +20,15 @@ import { SelectedElementsComponent } from './components/selected-elements/select
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        ScrollingModule
+        ScrollingModule,
+        OverlayModule,
+        PortalModule
     ],
     exports: [
         ViborSelectComponent
+    ],
+    entryComponents: [
+        OptionsViewerComponent
     ]
 })
 export class NgViborModule { }

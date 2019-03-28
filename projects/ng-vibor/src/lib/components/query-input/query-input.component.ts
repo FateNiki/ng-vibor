@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QueryInputComponent<SModel = any> implements OnDestroy {
-    static readonly emittedKey = ['ArrowUp', 'ArrowDown', 'Enter'];
+    static readonly emittedKey = ['ArrowUp', 'ArrowDown'];
 
     @ViewChild('input') input: ElementRef<HTMLInputElement>;
 
