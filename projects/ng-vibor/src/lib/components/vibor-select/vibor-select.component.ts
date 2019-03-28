@@ -1,5 +1,5 @@
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Component, Input, OnInit, forwardRef, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy, ElementRef, ViewChild, Injector } from '@angular/core';
+import { Component, Input, OnInit, forwardRef, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy, Injector, ViewContainerRef } from '@angular/core';
 import { Connector, DataSourceConnector } from '../../helpers/connector';
 import { NgViborService } from '../../services/ng-vibor.service';
 import { distinctUntilChanged, filter, map } from 'rxjs/operators';
@@ -7,7 +7,6 @@ import { Subscription } from 'rxjs';
 import { OverlayRef, Overlay, ViewportRuler, FlexibleConnectedPositionStrategy, OverlayConfig, PositionStrategy } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { OptionsViewerComponent } from '../options-viewer/options-viewer.component';
-import { QueryInputComponent } from '../query-input/query-input.component';
 import { DataSourceToken, ItemHeightToken, OptionsViewerSizeToken } from '../../injection.token';
 
 export const VIBOR_VALUE_ACCESSOR: any = {
@@ -54,7 +53,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         private cdr: ChangeDetectorRef,
         private overlay: Overlay,
         private viewportRuler: ViewportRuler,
-        private elRef: ElementRef
+        private viewContainerRef: ViewContainerRef,
     ) {
         this.subs.add(this.ShowOptionsSubscription);
         this.subs.add(this.ChooseOptionSubscription);
@@ -187,7 +186,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
             const position = overlayRef.getConfig().positionStrategy as FlexibleConnectedPositionStrategy;
 
             // Update the trigger, panel width and direction, in case anything has changed.
-            position.setOrigin(this.elRef);
+            position.setOrigin(this.viewContainerRef.element);
             overlayRef.updateSize({ width: this._getPanelWidth() });
         }
 
@@ -227,12 +226,12 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
                 { provide: OptionsViewerSizeToken, useValue: 300 },
             ]
         });
-        return new ComponentPortal<OptionsViewerComponent<SModel>>(OptionsViewerComponent, null, injector);
+        return new ComponentPortal<OptionsViewerComponent<SModel>>(OptionsViewerComponent, this.viewContainerRef, injector);
     }
 
     private _getOverlayPosition(): PositionStrategy {
         this._positionStrategy = this.overlay.position()
-            .flexibleConnectedTo(this.elRef)
+            .flexibleConnectedTo(this.viewContainerRef.element)
             .withFlexibleDimensions(false)
             .withPush(false)
             .withPositions([
@@ -247,10 +246,6 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
                     originY: 'top',
                     overlayX: 'start',
                     overlayY: 'bottom',
-
-                    // The overlay edge connected to the trigger should have squared corners, while
-                    // the opposite end has rounded corners. We apply a CSS class to swap the
-                    // border-radius based on the overlay position.
                     panelClass: 'mat-vibor-panel-above'
                 }
             ]);
@@ -266,7 +261,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     /** Returns the width of the input element, so the panel width can match it. */
     private _getHostWidth(): number {
-        return this.elRef.nativeElement.getBoundingClientRect().width;
+        return this.viewContainerRef.element.nativeElement.getBoundingClientRect().width;
     }
 
 }
