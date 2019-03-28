@@ -251,7 +251,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
                     // The overlay edge connected to the trigger should have squared corners, while
                     // the opposite end has rounded corners. We apply a CSS class to swap the
                     // border-radius based on the overlay position.
-                    panelClass: 'mat-autocomplete-panel-above'
+                    panelClass: 'mat-vibor-panel-above'
                 }
             ]);
 
