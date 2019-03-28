@@ -30,7 +30,6 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     // Inputs
     @Input() connector: Connector<SModel, FModel>;
-    @ViewChild('queryInput') queryInputComponent: QueryInputComponent<SModel>;
 
     // Local variable
     public dataSource: DataSourceConnector<SModel, FModel>;
@@ -54,7 +53,8 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         private vs: NgViborService<SModel>,
         private cdr: ChangeDetectorRef,
         private overlay: Overlay,
-        private viewportRuler: ViewportRuler
+        private viewportRuler: ViewportRuler,
+        private elRef: ElementRef
     ) {
         this.subs.add(this.ShowOptionsSubscription);
         this.subs.add(this.ChooseOptionSubscription);
@@ -187,7 +187,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
             const position = overlayRef.getConfig().positionStrategy as FlexibleConnectedPositionStrategy;
 
             // Update the trigger, panel width and direction, in case anything has changed.
-            position.setOrigin(this.queryInputComponent.input);
+            position.setOrigin(this.elRef);
             overlayRef.updateSize({ width: this._getPanelWidth() });
         }
 
@@ -232,7 +232,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     private _getOverlayPosition(): PositionStrategy {
         this._positionStrategy = this.overlay.position()
-            .flexibleConnectedTo(this.queryInputComponent.input)
+            .flexibleConnectedTo(this.elRef)
             .withFlexibleDimensions(false)
             .withPush(false)
             .withPositions([
@@ -266,7 +266,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     /** Returns the width of the input element, so the panel width can match it. */
     private _getHostWidth(): number {
-        return this.queryInputComponent.input.nativeElement.getBoundingClientRect().width;
+        return this.elRef.nativeElement.getBoundingClientRect().width;
     }
 
 }
