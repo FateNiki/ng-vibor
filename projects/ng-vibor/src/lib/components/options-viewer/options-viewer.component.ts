@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, Inject, HostBinding } from '@angular/core';
 
 import { DataSourceConnector } from '../../helpers/connector';
 import { Subscription } from 'rxjs';
@@ -16,6 +16,7 @@ declare type T = string;
 })
 export class OptionsViewerComponent<SModel> implements OnInit, OnDestroy {
     @ViewChild(CdkVirtualScrollViewport) scrollViewport: CdkVirtualScrollViewport;
+    @HostBinding('style.width') width = '100%';
 
     public selectedItem: T;
     public subs = new Subscription();
