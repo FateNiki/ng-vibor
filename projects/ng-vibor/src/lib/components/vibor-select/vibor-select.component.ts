@@ -172,8 +172,6 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
                     case 'choose':
                         const selectedElement = this.dataSource.selectedElement.value && this.dataSource.selectedElement.value.element;
                         this.vs.chooseOptions.next(selectedElement);
-                        this.vs.HideOptions();
-                        this.cdr.markForCheck();
                         break;
 
                     case 'close':

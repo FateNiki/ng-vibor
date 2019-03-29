@@ -21,4 +21,10 @@ export class NgViborService<SModel> {
     public ShowOptions(): void {
         this.showOptions.next(true);
     }
+
+    constructor() {
+        this.chooseOptions.subscribe(() => {
+            this.HideOptions();
+        });
+    }
 }
