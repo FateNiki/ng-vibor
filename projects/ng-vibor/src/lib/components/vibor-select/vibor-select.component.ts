@@ -188,6 +188,10 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
                 }
             });
 
+            overlayRef.backdropClick().subscribe(() => {
+                this.vs.HideOptions();
+            })
+
             if (this.viewportRuler) {
                 this.viewportSubscription = this.viewportRuler.change().subscribe(() => {
                     if (this.optionsOpen && overlayRef) {
@@ -226,7 +230,9 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     private _getOverlayConfig(): OverlayConfig {
         return new OverlayConfig({
             positionStrategy: this._getOverlayPosition(),
-            width: this._getPanelWidth()
+            width: this._getPanelWidth(),
+            hasBackdrop: true,
+            backdropClass: 'vibor-backdrop'
         });
     }
 
