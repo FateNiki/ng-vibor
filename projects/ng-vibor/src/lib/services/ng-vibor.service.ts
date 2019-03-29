@@ -3,9 +3,6 @@ import { Subject } from 'rxjs';
 
 @Injectable()
 export class NgViborService<SModel> {
-    /** События для обработки нажатий клавиш */
-    public readonly inputKeyEvent = new Subject<KeyboardEvent>();
-
     /** Событие изменения текста в инпуте */
     public readonly query = new Subject<string>();
 

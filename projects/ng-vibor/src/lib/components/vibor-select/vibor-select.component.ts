@@ -149,13 +149,20 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
             // the overlay event targeting provided by the CDK overlay.
             overlayRef.keydownEvents().pipe(
                 filter(event => {
-                    return event.code === 'Escape' || (event.code === 'ArrowUp' && event.altKey) || event.code === 'Enter';
+                    return event.code === 'Escape' ||
+                    event.code === 'ArrowUp' ||
+                    event.code === 'ArrowDown' ||
+                    event.code === 'Enter';
                 }),
                 map(event => {
                     if (event.code === 'Escape' || (event.code === 'ArrowUp' && event.altKey)) {
                         return 'close';
                     } else if (event.code === 'Enter') {
                         return 'choose';
+                    } else if (event.code === 'ArrowUp') {
+                        return 'up';
+                    } else if (event.code === 'ArrowDown') {
+                        return 'down';
                     }
                 })
             ).subscribe(event => {
@@ -169,8 +176,16 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
                         this.cdr.markForCheck();
                         break;
 
-                    case 'choose':
+                    case 'close':
                         this.vs.HideOptions();
+                        break;
+
+                    case 'up':
+                        this.dataSource.SelectElement(-1);
+                        break;
+
+                    case 'down':
+                        this.dataSource.SelectElement(1);
                         break;
                 }
             });

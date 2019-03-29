@@ -11,8 +11,6 @@ import { Subscription } from 'rxjs';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QueryInputComponent<SModel = any> implements OnDestroy {
-    static readonly emittedKey = ['ArrowUp', 'ArrowDown'];
-
     @ViewChild('input') input: ElementRef<HTMLInputElement>;
 
     public query = new FormControl(undefined);
@@ -46,20 +44,8 @@ export class QueryInputComponent<SModel = any> implements OnDestroy {
         });
     }
 
-    /** Прокидывание сообщения в сервис */
-    public EmitKeyPress(event: KeyboardEvent): void {
-        if (QueryInputComponent.emittedKey.includes(event.key)) {
-            this.vs.inputKeyEvent.next(event);
-        }
-    }
-
     /** Callback установки фокуса */
     public Focus() {
         this.vs.ShowOptions();
-    }
-
-    /** Callback потери фокуса */
-    public Blur() {
-        setTimeout(() => this.vs.HideOptions(), 100);
     }
 }

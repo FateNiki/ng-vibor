@@ -86,17 +86,6 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
 
             this.vs.query.pipe(tap(newQuery => {
                 this.queryChange(newQuery);
-            })),
-
-            this.vs.inputKeyEvent.pipe(tap(event => {
-                switch (event.key) {
-                    case 'ArrowUp':
-                        this.SelectElement(-1);
-                        break;
-                    case 'ArrowDown':
-                        this.SelectElement(1);
-                        break;
-                }
             }))
         ).subscribe();
 
@@ -161,7 +150,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
     }
 
     // Selected
-    private SelectElement(delta: 1 | -1): void {
+    public SelectElement(delta: 1 | -1): void {
         const element = this.selectedElement.value && this.selectedElement.value.element;
         const index = this.cachedData.indexOf(element) + delta;
         if (index < 0 || index >= this.cachedData.length) {
