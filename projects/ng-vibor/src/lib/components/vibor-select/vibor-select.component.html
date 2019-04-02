@@ -1,5 +1,5 @@
 
-<div class="vibor-container">
+<div class="vibor-container" [class.--disabled]="disabled">
     <vibor-selected-elements *ngIf="haveValue" [value]="value"></vibor-selected-elements>
     <vibor-query-input #queryInput></vibor-query-input>
     <span *ngIf="loading">

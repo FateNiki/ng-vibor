@@ -48,6 +48,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     public dataSource: DataSourceConnector<SModel, FModel>;
     public optionsOpen: boolean;
     public loading: boolean;
+    public disabled: boolean;
 
     // Subscription
     private subs = new Subscription();
@@ -167,6 +168,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     /** Установка атрибута disabled */
     setDisabledState(isDisabled: boolean): void {
+        this.disabled = isDisabled;
         this.vs.disabled$.next(isDisabled);
         this.cdr.markForCheck();
     }
