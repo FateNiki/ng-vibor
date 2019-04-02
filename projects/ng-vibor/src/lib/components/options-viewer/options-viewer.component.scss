@@ -1,12 +1,11 @@
-.example-viewport {
-    border: 1px solid black;
-}
-
 .example-item {
     height: 30px;
     cursor: pointer;
 
     &.selected {
+        background-color: azure;
+    }
+    &:hover {
         background-color: azure;
     }
 }

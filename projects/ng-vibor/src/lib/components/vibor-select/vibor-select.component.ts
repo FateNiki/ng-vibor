@@ -1,5 +1,5 @@
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Component, Input, OnInit, forwardRef, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy, Injector, ViewContainerRef } from '@angular/core';
+import { Component, Input, OnInit, forwardRef, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy, Injector, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { Connector, DataSourceConnector } from '../../helpers/connector';
 import { NgViborService } from '../../services/ng-vibor.service';
 import { distinctUntilChanged, filter, map } from 'rxjs/operators';
@@ -20,7 +20,8 @@ export const VIBOR_VALUE_ACCESSOR: any = {
     templateUrl: './vibor-select.component.html',
     styleUrls: ['./vibor-select.component.scss'],
     providers: [VIBOR_VALUE_ACCESSOR, NgViborService],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None
 })
 export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit, OnDestroy, ControlValueAccessor {
     // Declaration events
@@ -232,7 +233,8 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
             positionStrategy: this._getOverlayPosition(),
             width: this._getPanelWidth(),
             hasBackdrop: true,
-            backdropClass: 'vibor-backdrop'
+            backdropClass: 'vibor-backdrop',
+            panelClass: ['vibor-options-panel']
         });
     }
 
@@ -265,7 +267,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
                     originY: 'top',
                     overlayX: 'start',
                     overlayY: 'bottom',
-                    panelClass: 'mat-vibor-panel-above'
+                    panelClass: 'vibor-options-above'
                 }
             ]);
 
