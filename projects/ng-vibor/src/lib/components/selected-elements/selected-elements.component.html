@@ -1,1 +1,1 @@
-{{ value }} <button (click)="Remove()">✕</button>
+{{ value }} <button *ngIf="!disabled" (click)="Remove()">✕</button>

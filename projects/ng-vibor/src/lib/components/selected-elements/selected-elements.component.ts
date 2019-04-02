@@ -1,5 +1,6 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { NgViborService } from '../../services/ng-vibor.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'vibor-selected-elements',
@@ -7,10 +8,27 @@ import { NgViborService } from '../../services/ng-vibor.service';
   styleUrls: ['./selected-elements.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SelectedElementsComponent<SModel> {
+export class SelectedElementsComponent<SModel> implements OnDestroy {
     @Input() value: SModel;
 
-    constructor(private vs: NgViborService<SModel>) { }
+    private subs = new Subscription();
+    public disabled = false;
+
+    constructor(
+        private vs: NgViborService<SModel>,
+        private cdr: ChangeDetectorRef
+    ) {
+        this.subs.add(
+            this.vs.disabled$.subscribe(isDisabled => {
+                this.disabled = isDisabled;
+                this.cdr.markForCheck();
+            })
+        );
+    }
+
+    ngOnDestroy() {
+        this.subs.unsubscribe();
+    }
 
     public Remove() {
         this.vs.RemoveOption(this.value);
