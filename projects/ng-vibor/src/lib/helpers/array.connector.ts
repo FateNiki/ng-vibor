@@ -32,12 +32,13 @@ export class ArrayConnector<S, F> extends Connector<S, F> {
         return timer(3000).pipe(map(() => answer));
     }
 
-    public TransformBack(a: any): any {
-        if (a instanceof Array) {
-            return a.map(v1 => this.array.find(v2 => v2 === v1)).filter(v2 => !!v2);
-        } else {
-            return this.array.find(v2 => v2 === a);
-        }
+    public TransformBack(a) {
+        return a;
+        // if (a instanceof Array) {
+        //     return a.map(v1 => this.array.find(v2 => v2 === v1)).filter(v2 => !!v2);
+        // } else {
+        //     return this.array.find(v2 => v2 === a);
+        // }
     }
 
 
