@@ -1,4 +1,4 @@
-<vibor-selected-elements [value]="value"></vibor-selected-elements>
+<vibor-selected-elements *ngIf="haveValue" [value]="value"></vibor-selected-elements>
 <vibor-query-input #queryInput></vibor-query-input>
 <span *ngIf="loading">
     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16px"

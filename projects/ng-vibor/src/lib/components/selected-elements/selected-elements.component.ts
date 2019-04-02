@@ -13,6 +13,6 @@ export class SelectedElementsComponent<SModel> {
     constructor(private vs: NgViborService<SModel>) { }
 
     public Remove() {
-        this.vs.ChooseOption(null);
+        this.vs.RemoveOption(this.value);
     }
 }

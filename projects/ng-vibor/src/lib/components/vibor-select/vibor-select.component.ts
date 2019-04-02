@@ -46,6 +46,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     private _positionStrategy: PositionStrategy;
 
     // Models
+    public haveValue = false;
     private localFValue: FModel;
     private localSValue: SModel;
 
@@ -58,6 +59,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     ) {
         this.subs.add(this.ShowOptionsSubscription);
         this.subs.add(this.ChooseOptionSubscription);
+        this.subs.add(this.RemoveOptionSubscription);
     }
 
     ngOnInit() {
@@ -80,9 +82,21 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     /** Подписчик на выбор элемента из списка */
     private get ChooseOptionSubscription(): Subscription {
         return this.vs.chooseOptions$.pipe(
-            distinctUntilChanged()
+            // distinctUntilChanged()
         ).subscribe(newValue => {
+            this.haveValue = true;
             this.value = newValue;
+            this.cdr.markForCheck();
+        });
+    }
+
+    private get RemoveOptionSubscription(): Subscription {
+        return this.vs.removeOption$.pipe(
+            // distinctUntilChanged()
+            filter(deletedValue => this.connector.Comparator(deletedValue, this.value))
+        ).subscribe(() => {
+            this.haveValue = false;
+            this.value = undefined;
             this.cdr.markForCheck();
         });
     }
