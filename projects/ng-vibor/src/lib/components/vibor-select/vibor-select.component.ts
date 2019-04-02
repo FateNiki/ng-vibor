@@ -79,7 +79,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     /** Подписчик на выбор элемента из списка */
     private get ChooseOptionSubscription(): Subscription {
-        return this.vs.chooseOptions.pipe(
+        return this.vs.chooseOptions$.pipe(
             distinctUntilChanged()
         ).subscribe(newValue => {
             this.value = newValue;
@@ -172,7 +172,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
                 switch (event) {
                     case 'choose':
                         const selectedElement = this.dataSource.selectedElement.value && this.dataSource.selectedElement.value.element;
-                        this.vs.chooseOptions.next(selectedElement);
+                        this.vs.ChooseOption(selectedElement);
                         break;
 
                     case 'close':
@@ -191,7 +191,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
             overlayRef.backdropClick().subscribe(() => {
                 this.vs.HideOptions();
-            })
+            });
 
             if (this.viewportRuler) {
                 this.viewportSubscription = this.viewportRuler.change().subscribe(() => {

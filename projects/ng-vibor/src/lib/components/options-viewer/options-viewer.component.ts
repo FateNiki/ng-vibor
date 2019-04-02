@@ -54,7 +54,7 @@ export class OptionsViewerComponent<SModel> implements OnInit, OnDestroy {
 
     /** Выбор опции по клику */
     public ChooseOptions(element: SModel) {
-        this.vs.chooseOptions.next(element);
+        this.vs.ChooseOption(element);
     }
 }
 

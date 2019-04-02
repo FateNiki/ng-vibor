@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { NgViborService } from '../../services/ng-vibor.service';
 
 @Component({
   selector: 'vibor-selected-elements',
@@ -9,5 +10,9 @@ import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core
 export class SelectedElementsComponent<SModel> {
     @Input() value: SModel;
 
-    constructor() { }
+    constructor(private vs: NgViborService<SModel>) { }
+
+    public Remove() {
+        this.vs.ChooseOption(null);
+    }
 }

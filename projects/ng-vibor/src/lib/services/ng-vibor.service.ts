@@ -7,12 +7,18 @@ export class NgViborService<SModel> {
     public readonly query = new Subject<string>();
 
     /** Событие закрытия списка опций */
-    public readonly chooseOptions = new Subject<SModel>();
+    private readonly chooseOptions = new Subject<SModel>();
+    public readonly chooseOptions$ = this.chooseOptions.asObservable();
 
 
     /** Событие открытия списка опций */
     private readonly showOptions = new Subject<boolean>();
     public readonly showOptions$ = this.showOptions.asObservable();
+
+
+    public ChooseOption(value: SModel) {
+        this.chooseOptions.next(value);
+    }
 
     public HideOptions(): void {
         this.showOptions.next(false);
@@ -22,6 +28,7 @@ export class NgViborService<SModel> {
         this.showOptions.next(true);
     }
 
+    // Constructor
     constructor() {
         this.chooseOptions.subscribe(() => {
             this.HideOptions();
