@@ -103,6 +103,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
         });
     }
 
+    /** Подписчик на удаление опции */
     private get RemoveOptionSubscription(): Subscription {
         return this.vs.removeOption$.pipe(
             // distinctUntilChanged()
@@ -124,6 +125,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
             } else {
                 this._detachOverlay();
             }
+            this.onTouched();
             this.cdr.markForCheck();
         });
     }
