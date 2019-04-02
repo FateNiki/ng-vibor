@@ -8,7 +8,7 @@ import { ArrayConnector } from 'ng-vibor';
 })
 export class AppComponent {
     title = 'vibor-demo';
-    public value: number = 4270504185346;
+    public value: number;
     public disabled = false;
     public arrayConnector = new ArrayConnector<number, number>(Array.from({length: 500}).map(Math.random), 50);
 }
