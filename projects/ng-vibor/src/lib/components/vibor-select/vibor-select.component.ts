@@ -165,6 +165,7 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     /** Установка атрибута disabled */
     setDisabledState(isDisabled: boolean): void {
+        this.vs.disabled$.next(isDisabled);
         this.cdr.markForCheck();
     }
 

@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class NgViborService<SModel> {
     /** Событие изменения текста в инпуте */
-    public readonly query = new Subject<string>();
+    public readonly query$ = new Subject<string>();
+    public readonly disabled$ = new BehaviorSubject<boolean>(false);
 
     // Choose
     private readonly chooseOptions = new Subject<SModel>();

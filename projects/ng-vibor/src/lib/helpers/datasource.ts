@@ -39,7 +39,7 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
                 }
             })),
 
-            this.vs.query.pipe(tap(newQuery => {
+            this.vs.query$.pipe(tap(newQuery => {
                 this.queryChange(newQuery);
             }))
         ).subscribe();
