@@ -34,6 +34,8 @@ export abstract class Connector<SModel = any, FModel = any> {
 
     /** Метод обратного преобразования
      * Поиск при преведении из значений формы в значения Storage
+     * В коннекторе описывается метод и логика поиска.
+     * Например, искать значения в загруженных, допускать ли значения - отсутствующие в списке или нет
      */
     public abstract TransformBack(a: FModel): SModel;
     public abstract TransformBack(a: Array<FModel>): Array<SModel>;
