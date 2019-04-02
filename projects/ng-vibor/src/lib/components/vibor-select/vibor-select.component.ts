@@ -1,11 +1,24 @@
+import {
+    Component, Input, OnInit,
+    forwardRef, OnDestroy,
+    ChangeDetectorRef, ChangeDetectionStrategy,
+    Injector, ViewContainerRef, ViewEncapsulation
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Component, Input, OnInit, forwardRef, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy, Injector, ViewContainerRef, ViewEncapsulation } from '@angular/core';
-import { Connector, DataSourceConnector } from '../../helpers/connector';
-import { NgViborService } from '../../services/ng-vibor.service';
-import { distinctUntilChanged, filter, map } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
-import { OverlayRef, Overlay, ViewportRuler, FlexibleConnectedPositionStrategy, OverlayConfig, PositionStrategy } from '@angular/cdk/overlay';
+import {
+    OverlayRef, Overlay,
+    ViewportRuler, FlexibleConnectedPositionStrategy,
+    OverlayConfig, PositionStrategy
+} from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
+
+import { Subscription } from 'rxjs';
+import { distinctUntilChanged, filter, map } from 'rxjs/operators';
+
+import { Connector } from '../../helpers/connector';
+import { DataSourceConnector } from '../../helpers/datasource';
+import { NgViborService } from '../../services/ng-vibor.service';
+
 import { OptionsViewerComponent } from '../options-viewer/options-viewer.component';
 import { DataSourceToken, ItemHeightToken, OptionsViewerSizeToken } from '../../injection.token';
 
@@ -174,9 +187,9 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
             overlayRef.keydownEvents().pipe(
                 filter(event => {
                     return event.code === 'Escape' ||
-                    event.code === 'ArrowUp' ||
-                    event.code === 'ArrowDown' ||
-                    event.code === 'Enter';
+                        event.code === 'ArrowUp' ||
+                        event.code === 'ArrowDown' ||
+                        event.code === 'Enter';
                 }),
                 map(event => {
                     if (event.code === 'Escape' || (event.code === 'ArrowUp' && event.altKey)) {

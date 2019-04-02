@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, Inject, HostBinding } from '@angular/core';
 
-import { DataSourceConnector } from '../../helpers/connector';
+import { DataSourceConnector } from '../../helpers/datasource';
 import { Subscription } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { filter } from 'rxjs/operators';
