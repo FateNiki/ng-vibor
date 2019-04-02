@@ -14,11 +14,20 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
     private query: string;
 
     // Data and Subscriber
+    /** Хранит выбранный объект и отправляет сигнал о его изменении */
     public selectedElement = new BehaviorSubject<{element: SModel, index: number} | undefined>(undefined);
+
+    /** Отправляет новые данные в VirtualScroll */
     private dataStream = new BehaviorSubject<(SModel | undefined)[]>([]);
-    private loadingSubject = new BehaviorSubject<number[]>([]);
-    public loading$ = this.loadingSubject.asObservable();
+
+    /** Страницы на загрузке */
+    private loadingPagesSubject = new BehaviorSubject<number[]>([]);
+    public loading$ = this.loadingPagesSubject.asObservable();
+
+    /** Подписки внутреннего использования */
     private subscription: Subscription;
+    /** Подписчик на загрузку страниц */
+    private loadingDataSub = new Subscription();
 
     constructor(
         private connector: Connector<SModel, FModel>,
@@ -72,9 +81,9 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
         }
 
         this.fetchedPages.add(page);
-        this.loadingSubject.next([...this.loadingSubject.value, page]);
+        this.loadingPagesSubject.next([...this.loadingPagesSubject.value, page]);
 
-        this.connector.GetList(this.query, page).subscribe(newValues => {
+        this.loadingDataSub.add(this.connector.GetList(this.query, page).subscribe(newValues => {
             // TODO: Нормальный мерж списков (Учитывать что cachedData = undefined)
 
             const needEmitFistElement = !this.cachedData;
@@ -89,16 +98,21 @@ export class DataSourceConnector<SModel, FModel> extends DataSource<SModel | und
             }
 
             this.dataStream.next(this.cachedData);
-            const pages = this.loadingSubject.value;
+            const pages = this.loadingPagesSubject.value;
             pages.splice(pages.indexOf(page), 1);
-            this.loadingSubject.next(pages);
-        });
+            this.loadingPagesSubject.next(pages);
+        }));
     }
 
     private queryChange(newQuery: string) {
         if (newQuery !== this.query) {
             this.query = newQuery;
             this.cachedData = undefined;
+
+            this.loadingPagesSubject.next([]);
+            this.loadingDataSub.unsubscribe();
+            this.loadingDataSub = new Subscription();
+
             this.fetchedPages.clear();
             this.fetchPage(0);
         }
