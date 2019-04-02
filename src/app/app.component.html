@@ -6,7 +6,8 @@
 </div>
 
 {{ value }}
+<button (click)="disabled = !disabled">{{ disabled ? "Enable" : "Disable" }}</button>
 <div style="height: 300px;"></div>
 
-<vibor-select [connector]="arrayConnector" [(ngModel)]="value"></vibor-select>
+<vibor-select [connector]="arrayConnector" [(ngModel)]="value" [disabled]="disabled"></vibor-select>
 
