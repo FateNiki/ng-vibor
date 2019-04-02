@@ -136,8 +136,17 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     /** Запись значений снаружи */
     writeValue(obj: FModel): void {
-        this.localFValue = obj;
-        this.localSValue = this.connector.TransformBack(obj);
+        const sValue = this.connector.TransformBack(obj);
+        if (obj !== null) {
+            if (sValue) {
+                this.haveValue = true;
+                this.localFValue = obj;
+                this.localSValue = sValue;
+            } else {
+                this.value = undefined;
+            }
+        }
+
         this.cdr.markForCheck();
     }
 
