@@ -10,13 +10,15 @@ import { OptionsViewerComponent } from './components/options-viewer/options-view
 import { QueryInputComponent } from './components/query-input/query-input.component';
 import { ViborSelectComponent } from './components/vibor-select/vibor-select.component';
 import { SelectedElementsComponent } from './components/selected-elements/selected-elements.component';
+const Components = [ OptionsViewerComponent, QueryInputComponent, ViborSelectComponent, SelectedElementsComponent ];
+
+import { HighLightPipe } from './pipes/vibor.pipe';
+const Pipes = [ HighLightPipe ];
 
 @NgModule({
     declarations: [
-        OptionsViewerComponent,
-        QueryInputComponent,
-        ViborSelectComponent,
-        SelectedElementsComponent
+        Components,
+        Pipes
     ],
     imports: [
         CommonModule,
@@ -27,7 +29,8 @@ import { SelectedElementsComponent } from './components/selected-elements/select
         PortalModule
     ],
     exports: [
-        ViborSelectComponent
+        ViborSelectComponent,
+        HighLightPipe
     ],
     entryComponents: [
         OptionsViewerComponent

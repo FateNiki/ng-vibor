@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy, ViewChild, Inject, HostBinding, TemplateRef, Optional } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, Inject, HostBinding, TemplateRef, Optional, ViewEncapsulation } from '@angular/core';
 
 import { DataSourceConnector } from '../../helpers/datasource';
 import { Subscription } from 'rxjs';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { filter } from 'rxjs/operators';
+import { filter, distinctUntilChanged } from 'rxjs/operators';
 import { NgViborService } from '../../services/ng-vibor.service';
 import { DataSourceToken, ItemHeightToken, OptionsViewerSizeToken, OptionsTemplateToken } from '../../injection.token';
 
@@ -12,13 +12,15 @@ declare type T = string;
 @Component({
     selector: 'vibor-options-viewer',
     templateUrl: './options-viewer.component.html',
-    styleUrls: ['./options-viewer.component.scss']
+    styleUrls: ['./options-viewer.component.scss'],
+    encapsulation: ViewEncapsulation.None
 })
 export class OptionsViewerComponent<SModel> implements OnInit, OnDestroy {
     @ViewChild(CdkVirtualScrollViewport) scrollViewport: CdkVirtualScrollViewport;
     @HostBinding('style.width') width = '100%';
 
     public selectedItem: T;
+    public query: string;
     public subs = new Subscription();
 
     constructor(
@@ -31,6 +33,7 @@ export class OptionsViewerComponent<SModel> implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subs.add(this.ChangeSelectionSubscription);
+        this.subs.add(this.ChangeQuerySubscription);
     }
 
     ngOnDestroy() {
@@ -45,6 +48,15 @@ export class OptionsViewerComponent<SModel> implements OnInit, OnDestroy {
         ).subscribe(value => {
             this.selectedItem = value.element;
             this.focusSelectedOption(value.index);
+        });
+    }
+
+    /** Подписчик на строки поиска */
+    private get ChangeQuerySubscription(): Subscription {
+        return this.vs.query$.pipe(
+            distinctUntilChanged()
+        ).subscribe(newQuery => {
+            this.query = newQuery;
         });
     }
 

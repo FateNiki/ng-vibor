@@ -9,11 +9,11 @@
         [class.selected]="selectedItem && selectedItem === item">
 
         <ng-container *ngIf="!optionTemplate; else externalTemplate">
-            {{item || 'Loading...'}}
+            <span [innerHTML]="item ? (item | highlight : query) : 'Loading...'"></span>
         </ng-container>
 
         <ng-template #externalTemplate>
-            <ng-template *ngTemplateOutlet="optionTemplate; context: {'$implicit': item}"></ng-template>
+            <ng-template *ngTemplateOutlet="optionTemplate; context: {'$implicit': item, query: query}"></ng-template>
         </ng-template>
     </div>
 </cdk-virtual-scroll-viewport>

@@ -9,8 +9,8 @@
     !{{element}}!
 </ng-template>
 
-<ng-template #optionTemplate let-option>
-    !!{{option}}!!
+<ng-template #optionTemplate let-option let-query="query">
+    !!<span [innerHTML]="option | highlight : query"></span>!!
 </ng-template>
 
 
