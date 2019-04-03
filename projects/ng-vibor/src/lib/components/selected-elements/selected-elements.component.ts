@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { NgViborService } from '../../services/ng-vibor.service';
 import { Subscription } from 'rxjs';
 
@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 })
 export class SelectedElementsComponent<SModel> implements OnDestroy {
     @Input() value: SModel;
+    @Input() selectedTemplate: TemplateRef<any>;
 
     private subs = new Subscription();
     public disabled = false;

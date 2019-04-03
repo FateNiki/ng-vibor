@@ -2,7 +2,7 @@ import {
     Component, Input, OnInit,
     forwardRef, OnDestroy,
     ChangeDetectorRef, ChangeDetectionStrategy,
-    Injector, ViewContainerRef, ViewEncapsulation
+    Injector, ViewContainerRef, ViewEncapsulation, TemplateRef
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import {
@@ -43,6 +43,8 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
     // Inputs
     @Input() connector: Connector<SModel, FModel>;
+    @Input() selectedTemplate: TemplateRef<any>;
+    @Input() optionsTemplate: TemplateRef<any>;
 
     // Local variable
     public dataSource: DataSourceConnector<SModel, FModel>;

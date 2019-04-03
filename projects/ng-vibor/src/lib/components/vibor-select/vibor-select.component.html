@@ -1,7 +1,12 @@
 
 <div class="vibor-container" [class.--disabled]="disabled">
-    <vibor-selected-elements *ngIf="haveValue" [value]="value"></vibor-selected-elements>
+    <!-- Selected Element -->
+    <vibor-selected-elements *ngIf="haveValue" [value]="value" [selectedTemplate]="selectedTemplate"></vibor-selected-elements>
+
+    <!-- Input -->
     <vibor-query-input #queryInput></vibor-query-input>
+
+    <!-- Loading -->
     <span *ngIf="loading">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16px"
             height="16px" viewBox="0 0 16 16">
