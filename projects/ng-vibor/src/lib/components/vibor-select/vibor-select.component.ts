@@ -2,7 +2,7 @@ import {
     Component, Input, OnInit,
     forwardRef, OnDestroy,
     ChangeDetectorRef, ChangeDetectionStrategy,
-    Injector, ViewContainerRef, ViewEncapsulation, TemplateRef
+    Injector, ViewContainerRef, ViewEncapsulation, TemplateRef, StaticProvider
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import {
@@ -20,7 +20,7 @@ import { DataSourceConnector } from '../../helpers/datasource';
 import { NgViborService } from '../../services/ng-vibor.service';
 
 import { OptionsViewerComponent } from '../options-viewer/options-viewer.component';
-import { DataSourceToken, ItemHeightToken, OptionsViewerSizeToken } from '../../injection.token';
+import { DataSourceToken, ItemHeightToken, OptionsViewerSizeToken, OptionsTemplateToken } from '../../injection.token';
 
 export const VIBOR_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
@@ -282,14 +282,21 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     }
 
     private _getPortal(): ComponentPortal<OptionsViewerComponent<SModel>> {
-        const injector = Injector.create({
-            providers: [
-                { provide: NgViborService, useValue: this.vs },
-                { provide: DataSourceToken, useValue: this.dataSource },
-                { provide: ItemHeightToken, useValue: 30 },
-                { provide: OptionsViewerSizeToken, useValue: 300 },
-            ]
-        });
+        const providers: StaticProvider[] = [
+            { provide: NgViborService, useValue: this.vs },
+            { provide: DataSourceToken, useValue: this.dataSource },
+            { provide: ItemHeightToken, useValue: 30 },
+            { provide: OptionsViewerSizeToken, useValue: 300 }
+        ];
+
+        if (this.optionsTemplate) {
+            providers.push({
+                provide: OptionsTemplateToken,
+                useValue: this.optionsTemplate
+            });
+        }
+
+        const injector = Injector.create({ providers });
         return new ComponentPortal<OptionsViewerComponent<SModel>>(OptionsViewerComponent, this.viewContainerRef, injector);
     }
 
