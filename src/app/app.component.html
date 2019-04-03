@@ -5,13 +5,23 @@
   </h1>
 </div>
 
-<ng-template #selectedEl let-element>
+<ng-template #selectedTemplate let-element>
     !{{element}}!
+</ng-template>
+
+<ng-template #optionTemplate let-option>
+    !!{{option}}!!
 </ng-template>
 
 
 {{ value }}
 <button (click)="disabled = !disabled">{{ disabled ? "Enable" : "Disable" }}</button>
 
-<vibor-select [connector]="arrayConnector" [(ngModel)]="value" [disabled]="disabled" [selectedTemplate]="selectedEl"></vibor-select>
+<vibor-select
+    [connector]="arrayConnector"
+    [(ngModel)]="value"
+    [disabled]="disabled"
+    [selectedTemplate]="selectedTemplate"
+    [optionsTemplate]="optionTemplate">
+</vibor-select>
 
