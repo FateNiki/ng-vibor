@@ -8,6 +8,12 @@
         *cdkVirtualFor="let item of dataSource"
         [class.selected]="selectedItem && selectedItem === item">
 
-        {{item || 'Loading...'}}
+        <ng-container *ngIf="!optionTemplate; else externalTemplate">
+            {{item || 'Loading...'}}
+        </ng-container>
+
+        <ng-template #externalTemplate>
+            <ng-template *ngTemplateOutlet="optionTemplate; context: {'$implicit': item}"></ng-template>
+        </ng-template>
     </div>
 </cdk-virtual-scroll-viewport>
