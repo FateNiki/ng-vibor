@@ -39,7 +39,7 @@ export abstract class ViborComponent<SModel, FModel> implements OnInit, OnDestro
     public disabled: boolean;
 
     // Subscription
-    private subs = new Subscription();
+    protected subs = new Subscription();
     private viewportSubscription = Subscription.EMPTY;
 
     // Overlays
@@ -52,8 +52,8 @@ export abstract class ViborComponent<SModel, FModel> implements OnInit, OnDestro
     protected abstract localSValue;
 
     constructor(
-        private vs: NgViborService<SModel>,
-        private cdr: ChangeDetectorRef,
+        protected vs: NgViborService<SModel>,
+        protected cdr: ChangeDetectorRef,
         private overlay: Overlay,
         private viewportRuler: ViewportRuler,
         private viewContainerRef: ViewContainerRef,
@@ -72,6 +72,26 @@ export abstract class ViborComponent<SModel, FModel> implements OnInit, OnDestro
         this.subs.unsubscribe();
     }
 
+    // Abstract
+    /** Подписчик на выбор элемента из списка */
+    protected abstract get ChooseOptionSubscription(): Subscription;
+
+    /** Подписчик на удаление опции */
+    protected abstract get RemoveOptionSubscription(): Subscription;
+
+    /** Установка значений внутри компонента
+     * Незабыть this.notifyValueChange();
+     */
+    abstract set value(value);
+
+    /** Установка значений внутри компонента */
+    abstract get value();
+
+    /** Запись значений снаружи */
+    abstract writeValue(obj);
+
+
+    // Release
     /** Подписчик на обработку загружаемых страниц */
     private get LoadingSubscription(): Subscription {
         return this.dataSource.loading$.subscribe(pages => {
@@ -95,29 +115,12 @@ export abstract class ViborComponent<SModel, FModel> implements OnInit, OnDestro
         });
     }
 
-    /** Подписчик на выбор элемента из списка */
-    protected abstract get ChooseOptionSubscription(): Subscription;
-
-    /** Подписчик на удаление опции */
-    protected abstract get RemoveOptionSubscription(): Subscription;
-
-    /** Установка значений внутри компонента
-     * Незабыть this.notifyValueChange();
-     */
-    abstract set value(value);
-
-    /** Установка значений внутри компонента */
-    abstract get value();
-
     /** Метод уведомления о изменениях значения */
     notifyValueChange(): void {
         if (this.onChange) {
             this.onChange(this.localFValue);
         }
     }
-
-    /** Запись значений снаружи */
-    abstract writeValue(obj);
 
     /** Установка атрибута disabled */
     setDisabledState(isDisabled: boolean): void {

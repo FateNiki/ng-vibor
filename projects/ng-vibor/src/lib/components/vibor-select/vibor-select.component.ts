@@ -1,26 +1,21 @@
 import {
-    Component, Input, OnInit,
+    Component, OnInit,
     forwardRef, OnDestroy,
     ChangeDetectorRef, ChangeDetectionStrategy,
-    Injector, ViewContainerRef, ViewEncapsulation, TemplateRef, StaticProvider
+    ViewContainerRef, ViewEncapsulation
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import {
-    OverlayRef, Overlay,
-    ViewportRuler, FlexibleConnectedPositionStrategy,
-    OverlayConfig, PositionStrategy
+    Overlay,
+    ViewportRuler
 } from '@angular/cdk/overlay';
-import { ComponentPortal } from '@angular/cdk/portal';
 
 import { Subscription } from 'rxjs';
-import { distinctUntilChanged, filter, map } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 
-import { Connector } from '../../helpers/connector';
-import { DataSourceConnector } from '../../helpers/datasource';
 import { NgViborService } from '../../services/ng-vibor.service';
 
-import { OptionsViewerComponent } from '../options-viewer/options-viewer.component';
-import { DataSourceToken, ItemHeightToken, OptionsViewerSizeToken, OptionsTemplateToken } from '../../injection.token';
+import { ViborComponent } from '../shared.vibor.component';
 
 export const VIBOR_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
@@ -36,67 +31,30 @@ export const VIBOR_VALUE_ACCESSOR: any = {
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.None
 })
-export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit, OnDestroy, ControlValueAccessor {
-    // Declaration events
-    onChange: (value: FModel) => {};
-    onTouched: () => {};
-
-    // Inputs
-    @Input() connector: Connector<SModel, FModel>;
-    @Input() selectedTemplate: TemplateRef<any>;
-    @Input() optionsTemplate: TemplateRef<any>;
-
-    // Local variable
-    public dataSource: DataSourceConnector<SModel, FModel>;
-    public optionsOpen: boolean;
-    public loading: boolean;
-    public disabled: boolean;
-
-    // Subscription
-    private subs = new Subscription();
-    private viewportSubscription = Subscription.EMPTY;
-
-    // Overlays
-    private _overlayRef: OverlayRef | null;
-    private _portal: ComponentPortal<OptionsViewerComponent<SModel>> | null;
-    private _positionStrategy: PositionStrategy;
+export class ViborSelectComponent<SModel = any, FModel = any>
+    extends ViborComponent<SModel, FModel>
+    implements OnInit, OnDestroy, ControlValueAccessor {
 
     // Models
     public haveValue = false;
-    private localFValue: FModel;
-    private localSValue: SModel;
+    protected localFValue: FModel;
+    protected localSValue: SModel;
 
     constructor(
-        private vs: NgViborService<SModel>,
-        private cdr: ChangeDetectorRef,
-        private overlay: Overlay,
-        private viewportRuler: ViewportRuler,
-        private viewContainerRef: ViewContainerRef,
+        vs: NgViborService<SModel>,
+        cdr: ChangeDetectorRef,
+        overlay: Overlay,
+        viewportRuler: ViewportRuler,
+        viewContainerRef: ViewContainerRef,
     ) {
-        this.subs.add(this.ShowOptionsSubscription);
+        super(vs, cdr, overlay, viewportRuler, viewContainerRef);
+
         this.subs.add(this.ChooseOptionSubscription);
         this.subs.add(this.RemoveOptionSubscription);
     }
 
-    ngOnInit() {
-        this.dataSource = new DataSourceConnector<SModel, FModel>(this.connector, this.vs);
-        this.subs.add(this.LoadingSubscription);
-    }
-
-    ngOnDestroy() {
-        this.subs.unsubscribe();
-    }
-
-    /** Подписчик на обработку загружаемых страниц */
-    private get LoadingSubscription(): Subscription {
-        return this.dataSource.loading$.subscribe(pages => {
-            this.loading = pages.length > 0;
-            this.cdr.markForCheck();
-        });
-    }
-
     /** Подписчик на выбор элемента из списка */
-    private get ChooseOptionSubscription(): Subscription {
+    protected get ChooseOptionSubscription(): Subscription {
         return this.vs.chooseOptions$.pipe(
             // distinctUntilChanged()
         ).subscribe(newValue => {
@@ -107,28 +65,13 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     }
 
     /** Подписчик на удаление опции */
-    private get RemoveOptionSubscription(): Subscription {
+    protected get RemoveOptionSubscription(): Subscription {
         return this.vs.removeOption$.pipe(
             // distinctUntilChanged()
             filter(deletedValue => this.connector.Comparator(deletedValue, this.value))
         ).subscribe(() => {
             this.haveValue = false;
             this.value = undefined;
-            this.cdr.markForCheck();
-        });
-    }
-
-    /** Подписчик на отображени и скрытие выпадающего списка */
-    private get ShowOptionsSubscription(): Subscription {
-        return this.vs.showOptions$.pipe(
-            distinctUntilChanged()
-        ).subscribe(open => {
-            if (open) {
-                this._attachOverlay();
-            } else {
-                this._detachOverlay();
-            }
-            this.onTouched();
             this.cdr.markForCheck();
         });
     }
@@ -143,13 +86,6 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
     // Получение локального значения
     get value(): SModel {
         return this.localSValue;
-    }
-
-    /** Метод уведомления о изменениях значения */
-    notifyValueChange(): void {
-        if (this.onChange) {
-            this.onChange(this.localFValue);
-        }
     }
 
     /** Запись значений снаружи */
@@ -167,172 +103,4 @@ export class ViborSelectComponent<SModel = any, FModel = any> implements OnInit,
 
         this.cdr.markForCheck();
     }
-
-    /** Установка атрибута disabled */
-    setDisabledState(isDisabled: boolean): void {
-        this.disabled = isDisabled;
-        this.vs.disabled$.next(isDisabled);
-        this.cdr.markForCheck();
-    }
-
-    // Register events
-    registerOnChange(fn: any): void { this.onChange = fn; }
-    registerOnTouched(fn: any): void { this.onTouched = fn; }
-
-
-    private _attachOverlay(): void {
-        let overlayRef = this._overlayRef;
-        this.optionsOpen = true;
-
-        if (!overlayRef) {
-            this._portal = this._getPortal();
-            this._overlayRef = overlayRef = this.overlay.create(this._getOverlayConfig());
-
-
-            // Use the `keydownEvents` in order to take advantage of
-            // the overlay event targeting provided by the CDK overlay.
-            overlayRef.keydownEvents().pipe(
-                filter(event => {
-                    return event.code === 'Escape' ||
-                        event.code === 'ArrowUp' ||
-                        event.code === 'ArrowDown' ||
-                        event.code === 'Enter';
-                }),
-                map(event => {
-                    if (event.code === 'Escape' || (event.code === 'ArrowUp' && event.altKey)) {
-                        return 'close';
-                    } else if (event.code === 'Enter') {
-                        return 'choose';
-                    } else if (event.code === 'ArrowUp') {
-                        return 'up';
-                    } else if (event.code === 'ArrowDown') {
-                        return 'down';
-                    }
-                })
-            ).subscribe(event => {
-                // Close when pressing ESCAPE or ALT + UP_ARROW, based on the a11y guidelines.
-                // See: https://www.w3.org/TR/wai-aria-practices-1.1/#textbox-keyboard-interaction
-                switch (event) {
-                    case 'choose':
-                        const selectedElement = this.dataSource.selectedElement.value && this.dataSource.selectedElement.value.element;
-                        this.vs.ChooseOption(selectedElement);
-                        break;
-
-                    case 'close':
-                        this.vs.HideOptions();
-                        break;
-
-                    case 'up':
-                        this.dataSource.SelectElement(-1);
-                        break;
-
-                    case 'down':
-                        this.dataSource.SelectElement(1);
-                        break;
-                }
-            });
-
-            overlayRef.backdropClick().subscribe(() => {
-                this.vs.HideOptions();
-            });
-
-            if (this.viewportRuler) {
-                this.viewportSubscription = this.viewportRuler.change().subscribe(() => {
-                    if (this.optionsOpen && overlayRef) {
-                        overlayRef.updateSize({ width: this._getPanelWidth() });
-                    }
-                });
-            }
-        } else {
-            const position = overlayRef.getConfig().positionStrategy as FlexibleConnectedPositionStrategy;
-
-            // Update the trigger, panel width and direction, in case anything has changed.
-            position.setOrigin(this.viewContainerRef.element);
-            overlayRef.updateSize({ width: this._getPanelWidth() });
-        }
-
-        if (overlayRef && !overlayRef.hasAttached()) {
-            overlayRef.attach(this._portal);
-            // this._closingActionsSubscription = this._subscribeToClosingActions();
-        }
-    }
-
-    /** Closes the autocomplete suggestion panel. */
-    private _detachOverlay(): void {
-        if (!this.optionsOpen) {
-            return;
-        }
-
-        this.optionsOpen = false;
-
-        if (this._overlayRef && this._overlayRef.hasAttached()) {
-            this._overlayRef.detach();
-            //   this._closingActionsSubscription.unsubscribe();
-        }
-    }
-
-    private _getOverlayConfig(): OverlayConfig {
-        return new OverlayConfig({
-            positionStrategy: this._getOverlayPosition(),
-            width: this._getPanelWidth(),
-            hasBackdrop: true,
-            backdropClass: 'vibor-backdrop',
-            panelClass: ['vibor-options-panel']
-        });
-    }
-
-    private _getPortal(): ComponentPortal<OptionsViewerComponent<SModel>> {
-        const providers: StaticProvider[] = [
-            { provide: NgViborService, useValue: this.vs },
-            { provide: DataSourceToken, useValue: this.dataSource },
-            { provide: ItemHeightToken, useValue: 30 },
-            { provide: OptionsViewerSizeToken, useValue: 300 }
-        ];
-
-        if (this.optionsTemplate) {
-            providers.push({
-                provide: OptionsTemplateToken,
-                useValue: this.optionsTemplate
-            });
-        }
-
-        const injector = Injector.create({ providers });
-        return new ComponentPortal<OptionsViewerComponent<SModel>>(OptionsViewerComponent, this.viewContainerRef, injector);
-    }
-
-    private _getOverlayPosition(): PositionStrategy {
-        this._positionStrategy = this.overlay.position()
-            .flexibleConnectedTo(this.viewContainerRef.element)
-            .withFlexibleDimensions(false)
-            .withPush(false)
-            .withPositions([
-                {
-                    originX: 'start',
-                    originY: 'bottom',
-                    overlayX: 'start',
-                    overlayY: 'top'
-                },
-                {
-                    originX: 'start',
-                    originY: 'top',
-                    overlayX: 'start',
-                    overlayY: 'bottom',
-                    panelClass: 'vibor-options-above'
-                }
-            ]);
-
-        return this._positionStrategy;
-    }
-
-    private _getPanelWidth(): number | string {
-        // TODO: panelWidth - инпут
-        const panelWidth = undefined;
-        return panelWidth || this._getHostWidth();
-    }
-
-    /** Returns the width of the input element, so the panel width can match it. */
-    private _getHostWidth(): number {
-        return this.viewContainerRef.element.nativeElement.getBoundingClientRect().width;
-    }
-
 }
