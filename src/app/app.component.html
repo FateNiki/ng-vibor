@@ -13,15 +13,31 @@
     !!<span [innerHTML]="option | highlight : query"></span>!!
 </ng-template>
 
-
-{{ value }}
 <button (click)="disabled = !disabled">{{ disabled ? "Enable" : "Disable" }}</button>
 
-<vibor-select
-    [connector]="arrayConnector"
-    [(ngModel)]="value"
-    [disabled]="disabled"
-    [selectedTemplate]="selectedTemplate"
-    [optionsTemplate]="optionTemplate">
-</vibor-select>
+<div>
+    <div>
+        {{ value }}
+
+        <vibor-select
+            [connector]="arrayConnector"
+            [(ngModel)]="value"
+            [disabled]="disabled"
+            [selectedTemplate]="selectedTemplate"
+            [optionsTemplate]="optionTemplate">
+        </vibor-select>
+    </div>
+
+    <div>
+        {{ valueList }}
+        <vibor-multiselect
+            [connector]="arrayConnector"
+            [(ngModel)]="valueList"
+            [disabled]="disabled"
+            [selectedTemplate]="selectedTemplate"
+            [optionsTemplate]="optionTemplate">
+        </vibor-multiselect>
+    </div>
+</div>
+
 

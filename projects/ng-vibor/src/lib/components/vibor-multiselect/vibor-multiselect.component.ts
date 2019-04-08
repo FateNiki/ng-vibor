@@ -90,13 +90,13 @@ export class ViborMultiselectComponent<SModel = any, FModel = any>
 
     /** Запись значений снаружи */
     writeValue(obj: FModel[]): void {
-        if (obj !== null) {
-            const sValue = this.connector.TransformBack(obj);
+        if (obj instanceof Array) {
+            const sValue: SModel[] = this.connector.TransformBack(obj);
             if (sValue) {
                 this.localFValue = obj;
                 this.localSValue = sValue;
             } else {
-                this.value = undefined;
+                this.value = [];
             }
         }
 
