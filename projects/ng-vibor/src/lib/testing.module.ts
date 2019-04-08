@@ -5,19 +5,22 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { OptionsViewerComponent } from './components/options-viewer/options-viewer.component';
 import { QueryInputComponent } from './components/query-input/query-input.component';
-import { ViborSelectComponent } from './components/vibor-select/vibor-select.component';
 import { SelectedElementsComponent } from './components/selected-elements/selected-elements.component';
+import { ViborSelectComponent } from './components/vibor-select/vibor-select.component';
+import { ViborMultiselectComponent } from './components/vibor-multiselect/vibor-multiselect.component';
 
 import { NgViborService } from './services/ng-vibor.service';
-import { DataSourceConnector, Connector } from './helpers/connector';
+import { Connector } from './helpers/connector';
 import { ArrayConnector } from './helpers/array.connector';
+import { DataSourceConnector } from './helpers/datasource';
 
 export const TestViborModule: TestModuleMetadata = {
     declarations: [
         OptionsViewerComponent,
         QueryInputComponent,
+        SelectedElementsComponent,
         ViborSelectComponent,
-        SelectedElementsComponent
+        ViborMultiselectComponent
     ],
     imports: [
         CommonModule,

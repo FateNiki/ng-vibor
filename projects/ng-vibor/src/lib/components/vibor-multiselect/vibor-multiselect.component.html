@@ -1,0 +1,29 @@
+
+<div class="vibor-container" [class.--disabled]="disabled">
+    <!-- Selected Element -->
+    <vibor-selected-elements *ngFor="let element of value" [value]="element" [selectedTemplate]="selectedTemplate"></vibor-selected-elements>
+
+    <!-- Input -->
+    <vibor-query-input #queryInput></vibor-query-input>
+
+    <!-- Loading -->
+    <span *ngIf="loading">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16px"
+            height="16px" viewBox="0 0 16 16">
+            <g transform="translate(0, 0)">
+                <g class="nc-loop_dots-06-16" transform="rotate(45 8 8)">
+                    <circle cx="8" cy="2" r="1.5" fill="#444444"></circle>
+                    <circle cx="8" cy="14" r="1.5" fill="#444444" style="opacity: 0.4;"></circle>
+                    <circle cx="2" cy="8" r="1.5" fill="#444444" style="opacity: 0.6;"></circle>
+                    <circle cx="14" cy="8" r="1.5" fill="#444444" style="opacity: 0.4;"></circle>
+                    <circle cx="12.243" cy="3.757" r="1.5" fill="#444444" style="opacity: 0.4;"></circle>
+                    <circle cx="3.757" cy="12.243" r="1.5" fill="#444444" style="opacity: 0.4;"></circle>
+                    <circle cx="3.757" cy="3.757" r="1.5" fill="#444444" style="opacity: 0.8;"></circle>
+                    <circle cx="12.243" cy="12.243" r="1.5" fill="#444444" style="opacity: 0.4;"></circle>
+                </g>
+                <script>!function () { function t(t) { this.element = t, this.animationId, this.start = null, this.init() } if (!window.requestAnimationFrame) { var i = null; window.requestAnimationFrame = function (t, n) { var e = (new Date).getTime(); i || (i = e); var a = Math.max(0, 16 - (e - i)), o = window.setTimeout(function () { t(e + a) }, a); return i = e + a, o } } t.prototype.init = function () { var t = this; this.animationId = window.requestAnimationFrame(t.triggerAnimation.bind(t)) }, t.prototype.reset = function () { var t = this; window.cancelAnimationFrame(t.animationId) }, t.prototype.triggerAnimation = function (t) { var i = this; this.start || (this.start = t); var n = t - this.start; 800 > n || (this.start = this.start + 800), this.element.setAttribute("transform", "rotate(" + parseInt(Math.min(n / 100, 8)) % 8 * 45 + " 8 8)"); if (document.documentElement.contains(this.element)) window.requestAnimationFrame(i.triggerAnimation.bind(i)) }; var n = document.getElementsByClassName("nc-loop_dots-06-16"), e = []; if (n) for (var a = 0; n.length > a; a++)!function (i) { e.push(new t(n[i])) }(a); document.addEventListener("visibilitychange", function () { "hidden" == document.visibilityState ? e.forEach(function (t) { t.reset() }) : e.forEach(function (t) { t.init() }) }) }();</script>
+            </g>
+        </svg>
+    </span>
+</div>
+

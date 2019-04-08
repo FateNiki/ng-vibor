@@ -1,0 +1,7 @@
+$vibor-options-panel-border-radius: 4px !default;
+
+.vibor-options-panel {
+    box-shadow: 0px 0px $vibor-options-panel-border-radius 1px rgba(68,68,68,0.6);
+
+    &.vibor-options-above { }
+}

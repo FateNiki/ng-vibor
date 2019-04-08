@@ -10,7 +10,11 @@ import { OptionsViewerComponent } from './components/options-viewer/options-view
 import { QueryInputComponent } from './components/query-input/query-input.component';
 import { ViborSelectComponent } from './components/vibor-select/vibor-select.component';
 import { SelectedElementsComponent } from './components/selected-elements/selected-elements.component';
-const Components = [ OptionsViewerComponent, QueryInputComponent, ViborSelectComponent, SelectedElementsComponent ];
+import { ViborMultiselectComponent } from './components/vibor-multiselect/vibor-multiselect.component';
+const Components = [
+    OptionsViewerComponent, QueryInputComponent, SelectedElementsComponent,
+    ViborSelectComponent, ViborMultiselectComponent
+];
 
 import { HighLightPipe } from './pipes/vibor.pipe';
 const Pipes = [ HighLightPipe ];
@@ -30,6 +34,7 @@ const Pipes = [ HighLightPipe ];
     ],
     exports: [
         ViborSelectComponent,
+        ViborMultiselectComponent,
         HighLightPipe
     ],
     entryComponents: [
